@@ -1,0 +1,1 @@
+uvicorn icon_rhizome_dev.main:app --reload
