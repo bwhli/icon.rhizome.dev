@@ -1,18 +1,16 @@
 from starlite import Controller, get
 
 from icon_rhizome_dev.constants import API_PREFIX
-from icon_rhizome_dev.models.transaction import Transaction
-from icon_rhizome_dev.tracker import Tracker
 
 
-class ApiValidatorController(Controller):
+class ApiGovernanceController(Controller):
     """
-    A controller for routes relating to ICON validators.
+    A controller for routes relating to ICON governance.
     """
 
-    path = f"{API_PREFIX}/validators/"
+    path = f"{API_PREFIX}/governance"
 
-    @get(path="/{address:str}/")
+    @get(path="/validators/{address:str}/")
     async def get_validator(self, address: str):
         """
         Returns information about an ICON validator.
@@ -22,7 +20,7 @@ class ApiValidatorController(Controller):
         """
         return
 
-    @get(path="/")
+    @get(path="/validators/")
     async def get_validators(self):
         """
         Returns information about all ICON validators.
