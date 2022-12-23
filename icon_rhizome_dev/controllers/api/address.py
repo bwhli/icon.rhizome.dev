@@ -16,3 +16,8 @@ class ApiAddressController(Controller):
     async def get_address(self, tx_hash: str) -> IcxAddress:
         transaction = await Tracker.get(tx_hash)
         return transaction
+
+    @get(path="/addresses/", cache=BLOCK_TIME)
+    async def get_addressees(self) -> list[IcxAddress]:
+        addresses = await Tracker.get_addresses()
+        return addresses

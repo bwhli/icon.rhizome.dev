@@ -1,5 +1,7 @@
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http import Http
+from icon_rhizome_dev.icx import Icx
+from icon_rhizome_dev.models.governance import Validator
 from icon_rhizome_dev.models.icx import IcxAddress, IcxTransaction
 
 
@@ -90,3 +92,17 @@ class Tracker:
         response = await Http.get(url)
         transactions = [IcxTransaction(**transaction) for transaction in response]
         return transactions
+
+    @staticmethod
+    async def get_validators(calculate_rewards: bool = True):
+        url = "https://tracker.icon.community/api/v1/governance/preps"
+        response = await Http.get(url)
+        import json
+
+        for validator in response:
+
+            print(json.dumps(validator, indent=4))
+        validators = [Validator(**validator) for validator in response]
+        if calculate_rewards is True:
+            icx_usd_price = Icx.get_icx_usd_price()
+        return validators

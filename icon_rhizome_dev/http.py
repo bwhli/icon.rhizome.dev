@@ -5,9 +5,8 @@ class Http:
     def __init__(self) -> None:
         pass
 
-    @classmethod
+    @staticmethod
     async def get(
-        cls,
         url: str,
         headers: dict = None,
         timeout: float = 10.0,

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html _="on load or resize from window set global width to window.innerWidth">
+
+    <head>
+        <!--
+        ██████╗ ██╗  ██╗██╗███████╗ ██████╗ ███╗   ███╗███████╗
+        ██╔══██╗██║  ██║██║╚══███╔╝██╔═══██╗████╗ ████║██╔════╝
+        ██████╔╝███████║██║  ███╔╝ ██║   ██║██╔████╔██║█████╗  
+        ██╔══██╗██╔══██║██║ ███╔╝  ██║   ██║██║╚██╔╝██║██╔══╝  
+        ██║  ██║██║  ██║██║███████╗╚██████╔╝██║ ╚═╝ ██║███████╗
+        ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝
+        -->
+        <title>{{ title }} | RHIZOME Tracker</title>
+        <meta name="viewport" content="width=device-widt1h, initial-scale=1, maximum-scale=1" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        {% block head_meta %}{% endblock %}
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/htmx.org@1.7.0/dist/htmx.min.js"></script>
+        <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
+        <script src="https://cdn.jsdelivr.net/npm/luxon@^2"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@^1"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+        {% block head_scripts %}{% endblock %}
+    </head>
+
+    <body class="flex flex-col min-h-screen subpixel-antialiased text-gray-100 bg-black">
+        <main class="flex flex-col flex-1 w-full gap-3 p-3 overflow-y-auto">
+            {% block container %}{% endblock %}
+        </main>
+    </body>
+
+</html>

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block container %}
+
+<ul>
+    {% for validator in validators %}
+    <li>{{ fmt(validator.bonded) }}</li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}

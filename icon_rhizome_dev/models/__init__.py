@@ -2,5 +2,5 @@ from pydantic import BaseModel
 
 
 class Result(BaseModel):
-    default: int
-    string: str
+    default: int | float
+    string: str = None

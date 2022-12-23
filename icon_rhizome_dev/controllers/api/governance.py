@@ -1,6 +1,9 @@
 from starlite import Controller, get
 
 from icon_rhizome_dev.constants import API_PREFIX
+from icon_rhizome_dev.icx import Icx
+from icon_rhizome_dev.models.governance import Validator
+from icon_rhizome_dev.tracker import Tracker
 
 
 class ApiGovernanceController(Controller):
@@ -10,19 +13,10 @@ class ApiGovernanceController(Controller):
 
     path = f"{API_PREFIX}/governance"
 
-    @get(path="/validators/{address:str}/")
-    async def get_validator(self, address: str):
-        """
-        Returns information about an ICON validator.
-
-        Args:
-            address: The ICX address of an ICON validator.
-        """
-        return
-
     @get(path="/validators/")
-    async def get_validators(self):
+    async def get_validators(self) -> list[Validator]:
         """
         Returns information about all ICON validators.
         """
-        return
+        validators = Icx.get_validators()
+        return validators
