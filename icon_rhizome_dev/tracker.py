@@ -1,7 +1,7 @@
 import json
 
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
-from icon_rhizome_dev.http import Http
+from icon_rhizome_dev.http_client import HttpClient
 from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.governance import Validator
 from icon_rhizome_dev.models.icx import IcxAddress, IcxTransaction
@@ -24,7 +24,7 @@ class Tracker:
         Args:
             address: An ICX address.
         """
-        response = await Http.get(f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}")  # fmt: skip
+        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}")  # fmt: skip
         return response
 
     @staticmethod
@@ -35,7 +35,7 @@ class Tracker:
         Args:
             address: An ICX address.
         """
-        response = await Http.get(f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}")  # fmt: skip
+        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}")  # fmt: skip
         return response
 
     @staticmethod
@@ -52,7 +52,7 @@ class Tracker:
         Returns:
             int: Block height for the provided timestamp.
         """
-        response = await Http.get(f"{TRACKER_API_ENDPOINT}/blocks/timestamp/{timestamp * 1000000}/")  # fmt: skip
+        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/blocks/timestamp/{timestamp * 1000000}/")  # fmt: skip
 
         if response.status_code == 200:
             block = response.json()
@@ -64,7 +64,7 @@ class Tracker:
 
     @staticmethod
     async def get_iscore_claimed(tx_hash: str) -> int:
-        response = await Http.get(f"{TRACKER_API_ENDPOINT}/logs?transaction_hash={tx_hash}")  # fmt: skip
+        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/logs?transaction_hash={tx_hash}")  # fmt: skip
         data = response.json()
         log_data = json.loads(data[0]["data"])
         log_data = [int(v, 16) for v in log_data]
@@ -79,7 +79,7 @@ class Tracker:
         Args:
             tx_hash: An ICX transaction hash.
         """
-        response = await Http.get(f"{TRACKER_API_ENDPOINT}/transaction/details/{tx_hash}")  # fmt: skip
+        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/transaction/details/{tx_hash}")  # fmt: skip
         transaction = IcxTransaction(**response)
         return transaction
 
@@ -124,7 +124,7 @@ class Tracker:
         elif len(query_params) > 1:
             url = f"{url}&{'&'.join(query_params)}"
 
-        response = await Http.get(url)
+        response = await HttpClient.get(url)
 
         if response.status_code == 200:
             transactions = [IcxTransaction(**transaction) for transaction in response.json()]  # fmt: skip
@@ -133,15 +133,33 @@ class Tracker:
             return None
 
     @staticmethod
-    async def get_validators(calculate_rewards: bool = True):
-        url = "https://tracker.icon.community/api/v1/governance/preps"
-        response = await Http.get(url)
-        import json
+    async def is_approved_voter(address: str):
+        url = f"{TRACKER_API_ENDPOINT}/governance/delegations/{address}?skip=0&limit=100"  # fmt: skip
+        approved_validators = [
+            "hx4a43790d44b07909d20fbcc233548fc80f7a4067",  # RHIZOME
+            "hx5da9e862b4e26e5ac486c1d70d9d63927ce35e1c",  # Studio Mirai
+            "hxca60d4371ad90d624dc7119f81009d799c168aa1",  # FRAMD
+            "hx2e7db537ca3ff73336bee1bab4cf733a94ae769b",  # Eye on ICON
+            "hx9fa9d224306b0722099d30471b3c2306421aead7",  # Espanicon
+            "hxfc56203484921c3b7a4dee9579d8614d8c8daaf5",  # Sudoblock
+            "hx6f89b2c25c15f6294c79810221753131067ed3f8",  # Staky.io
+        ]
+        response = await HttpClient.get(url)
 
-        for validator in response:
+        if response.status_code == 200:
+            valid_delegations = []  # Delegation to SM or RHIZOME
+            delegations = response.json()
+            total_delegation_value = sum([delegation["value"] for delegation in delegations])  # fmt: skip
 
-            print(json.dumps(validator, indent=4))
-        validators = [Validator(**validator) for validator in response]
-        if calculate_rewards is True:
-            icx_usd_price = Icx.get_icx_usd_price()
-        return validators
+            # Create a list of delegations to approved validators and represent more than 10% of total delegation.
+            valid_delegations = [
+                delegation
+                for delegation in delegations
+                if delegation["prep_address"] in approved_validators
+                and delegation["value"] / total_delegation_value >= 0.1
+            ]
+
+            if len(valid_delegations) == len(approved_validators):
+                return True
+
+        return False

@@ -1,7 +1,7 @@
 import httpx
 
 
-class Http:
+class HttpClient:
     def __init__(self) -> None:
         pass
 

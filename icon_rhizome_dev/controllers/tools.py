@@ -50,9 +50,19 @@ class ToolsController(Controller):
         ),
     ) -> Template:
 
+        whitelisted_addresses = ["hx9b402cbf72f713efd6b8d7a709cb6eb7ed7695cd"]
+
         # Parse form data.
         icx_address = data.icxAddress
         year = data.year
+
+        if icx_address not in whitelisted_addresses:
+            is_valid_address = await Tracker.is_approved_voter(icx_address)
+            if is_valid_address is False:
+                return Template(
+                    name="tools/htmx/icx_staking_rewards_exporter/submission_result_invalid_voter.html",
+                    context={},
+                )
 
         # Initialize array to hold I-Score claim transaction hashes.
         iscore_claim_transactions = []
@@ -169,7 +179,7 @@ class ToolsController(Controller):
             print(total_icx_claimed, total_usd_claimed, average_icx_usd_claim_price)
 
             return Template(
-                name="tools/htmx/icx_staking_rewards_exporter/submission_result.html",
+                name="tools/htmx/icx_staking_rewards_exporter/submission_result_success.html",
                 context={
                     "download_url": f"https://tools-rhizome-dev.s3.us-west-2.amazonaws.com/{filename}",
                     "total_icx_claimed": Utils.fmt(total_icx_claimed),
