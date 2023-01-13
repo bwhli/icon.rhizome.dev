@@ -5,7 +5,7 @@ from icon_rhizome_dev.models.icx import IcxAddress
 from icon_rhizome_dev.tracker import Tracker
 
 
-class ApiAddressController(Controller):
+class AddressController(Controller):
     """
     A controller for routes relating to ICX addresses.
     """

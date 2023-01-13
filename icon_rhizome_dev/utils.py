@@ -24,5 +24,5 @@ class Utils:
 
     @staticmethod
     def fmt(value: float | int) -> str:
-        value_str = f"{value:+,.4f}".rstrip("0")
+        value_str = f"{value:,.4f}".rstrip("0")
         return value_str

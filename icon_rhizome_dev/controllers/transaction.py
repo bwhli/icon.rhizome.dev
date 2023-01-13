@@ -5,7 +5,7 @@ from icon_rhizome_dev.models.icx import IcxTransaction
 from icon_rhizome_dev.tracker import Tracker
 
 
-class ApiTransactionController(Controller):
+class TransactionController(Controller):
     """
     A controller for routes relating to ICX transactions.
     """

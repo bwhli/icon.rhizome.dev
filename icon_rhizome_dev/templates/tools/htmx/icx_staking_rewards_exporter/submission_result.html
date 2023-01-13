@@ -1,0 +1,11 @@
+<div id="icx-staking-rewards-exporter-result" class="flex flex-col gap-4 px-4">
+    <p class="text-lg text-center">
+        In {{ year }}, you claimed <span class="font-bold">{{ total_icx_claimed }} ICX</span> worth <span
+            class="font-bold">${{ total_usd_claimed }}</span> at an average price of <span
+            class="font-bold">${{ average_icx_usd_claim_price }}/ICX</span>.
+    </p>
+    <p class="text-lg font-bold text-center">
+        Click <a href="{{ download_url }}" class="underline hover:no-underline">here</a> to download your CSV
+        report.
+    </p>
+</div>

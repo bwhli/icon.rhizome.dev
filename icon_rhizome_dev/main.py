@@ -1,20 +1,21 @@
 import os
 
-from jinja2 import Environment, FileSystemLoader
 from starlite import CacheConfig, Request, Starlite, Template, TemplateConfig, get
 from starlite.cache.redis_cache_backend import (
     RedisCacheBackend,
     RedisCacheBackendConfig,
 )
-from starlite.template.jinja import JinjaTemplateEngine
+from starlite.contrib.jinja import JinjaTemplateEngine
 
 from icon_rhizome_dev import ENV
-from icon_rhizome_dev.controllers.api.address import ApiAddressController
-from icon_rhizome_dev.controllers.api.governance import ApiGovernanceController
-from icon_rhizome_dev.controllers.api.transaction import ApiTransactionController
-from icon_rhizome_dev.controllers.app.governance import AppGovernanceController
+from icon_rhizome_dev.controllers.address import AddressController
+from icon_rhizome_dev.controllers.governance import GovernanceController
+from icon_rhizome_dev.controllers.tools import ToolsController
+from icon_rhizome_dev.controllers.transaction import TransactionController
 from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.utils import Utils
+
+PROJECT_DIR = os.path.dirname(__file__)
 
 # Configure Redis cache settings.
 redis_config = RedisCacheBackendConfig(
@@ -38,15 +39,14 @@ def home_handler(request: Request) -> Template:
 # Initialize Starlite app.
 app = Starlite(
     route_handlers=[
-        ApiAddressController,
-        ApiGovernanceController,
-        ApiTransactionController,
-        AppGovernanceController,
+        AddressController,
+        GovernanceController,
+        ToolsController,
+        TransactionController,
         home_handler,
     ],
-    cache_config=cache_config,
     template_config=TemplateConfig(
-        directory=f"{os.path.dirname(__file__)}/templates",
+        directory=f"{PROJECT_DIR}/templates",
         engine=JinjaTemplateEngine,
     ),
 )

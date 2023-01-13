@@ -6,7 +6,7 @@ from icon_rhizome_dev.models.governance import Validator
 from icon_rhizome_dev.tracker import Tracker
 
 
-class ApiGovernanceController(Controller):
+class GovernanceController(Controller):
     """
     A controller for routes relating to ICON governance.
     """

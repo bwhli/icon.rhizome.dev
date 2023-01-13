@@ -1,3 +1,5 @@
+import json
+
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http import Http
 from icon_rhizome_dev.icx import Icx
@@ -35,6 +37,39 @@ class Tracker:
         """
         response = await Http.get(f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}")  # fmt: skip
         return response
+
+    @staticmethod
+    async def get_block_from_timestamp(
+        timestamp: int,
+        block_number_only: bool = False,
+    ) -> int:
+        """
+        Returns block height for the provided timestamp.
+
+        Args:
+            timestamp (int): Unix timestamp in seconds (must be greater than 1516819217)
+
+        Returns:
+            int: Block height for the provided timestamp.
+        """
+        response = await Http.get(f"{TRACKER_API_ENDPOINT}/blocks/timestamp/{timestamp * 1000000}/")  # fmt: skip
+
+        if response.status_code == 200:
+            block = response.json()
+            if block_number_only is True:
+                return block["number"]
+            return block
+        else:
+            return None
+
+    @staticmethod
+    async def get_iscore_claimed(tx_hash: str) -> int:
+        response = await Http.get(f"{TRACKER_API_ENDPOINT}/logs?transaction_hash={tx_hash}")  # fmt: skip
+        data = response.json()
+        log_data = json.loads(data[0]["data"])
+        log_data = [int(v, 16) for v in log_data]
+        iscore_claimed = int(log_data[0])
+        return iscore_claimed
 
     @staticmethod
     async def get_transaction(tx_hash: str) -> IcxTransaction:
@@ -90,8 +125,12 @@ class Tracker:
             url = f"{url}&{'&'.join(query_params)}"
 
         response = await Http.get(url)
-        transactions = [IcxTransaction(**transaction) for transaction in response]
-        return transactions
+
+        if response.status_code == 200:
+            transactions = [IcxTransaction(**transaction) for transaction in response.json()]  # fmt: skip
+            return transactions
+        else:
+            return None
 
     @staticmethod
     async def get_validators(calculate_rewards: bool = True):
