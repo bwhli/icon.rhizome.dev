@@ -50,7 +50,10 @@ class ToolsController(Controller):
         ),
     ) -> Template:
 
-        whitelisted_addresses = ["hx9b402cbf72f713efd6b8d7a709cb6eb7ed7695cd"]
+        whitelisted_addresses = [
+            "hx9b402cbf72f713efd6b8d7a709cb6eb7ed7695cd",  # Brian
+            "hxdcfe54451c017ecd3efe4becd11bcc7ea1cf252e",  # Andrew
+        ]
 
         # Parse form data.
         icx_address = data.icxAddress
