@@ -85,14 +85,16 @@ class IcxValidator(BaseModel):
     details: str
     email: str
     grade: int
-    irep: int
-    irep_update_block_height: int
-    last_height: int
+    reward_daily: int | float = None
+    reward_daily_usd: int | float = None
+    reward_monthly: int | float = None
+    reward_monthly_usd: int | float = None
     name: str
     node_address: str
     p2p_endpoint: str
     penalty: int
     power: float
+    productivity: float = None
     status: int
     total_blocks: int
     validated_blocks: int
@@ -100,15 +102,41 @@ class IcxValidator(BaseModel):
 
     @root_validator(pre=True)
     def root_validator(cls, values):
+        # Reassign some keys.
+        values["node_address"] = values["nodeAddress"]
+        values["p2p_endpoint"] = values["p2pEndpoint"]
+        values["total_blocks"] = values["totalBlocks"]
+        values["validated_blocks"] = values["validatedBlocks"]
+
+        # Convert hex to integers.
         for k, v in values.items():
             try:
                 if isinstance(v, str) and v.startswith("0x"):
                     values[k] = Utils.hex_to_int(v)
             except ValueError:
                 continue
-        print(values)
+
+        # Calculate productivity.
+        try:
+            values["productivity"] = values["validated_blocks"] / values["total_blocks"]
+        except ZeroDivisionError:
+            values["productivity"] = 0
+
         return values
 
-    @validator("bonded", "delegated", "power", "irep")
-    def loop_to_icx(cls, value) -> float:
+    @validator("bonded", "delegated", "power")
+    def loop_to_icx(cls, value: int) -> float:
         return value / 10**EXA
+
+    @validator("name")
+    def validate_name(cls, value: str) -> str:
+        if value.startswith("ICONLEO"):
+            return "ICONLEO"
+        elif value.startswith("ICXburners"):
+            return "ICXburners"
+        elif value.startswith("Gilga Capital"):
+            return "Gilga Capital"
+        elif value.startswith("UNBLOCK"):
+            return "UNBLOCK"
+        else:
+            return value

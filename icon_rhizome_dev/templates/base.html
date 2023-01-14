@@ -15,13 +15,33 @@
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         {% block head_meta %}{% endblock %}
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://unpkg.com/htmx.org@1.7.0/dist/htmx.min.js"></script>
+        <script src="https://unpkg.com/htmx.org@1.8.4"></script>
         <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
+        <link rel="stylesheet" href="/static/css/style.css?{{ NOW }}">
         {% block head_scripts %}{% endblock %}
     </head>
 
     <body class="flex flex-col min-h-screen subpixel-antialiased text-gray-100 bg-black">
+        <header class="flex items-center justify-between p-4">
+            <h1 class="font-bold text-3xl">
+                <a href="/" class="hover:underline hover:text-cyan-500">RHIZOME</a>
+            </h1>
+            <nav>
+                <ul class="flex gap-4">
+                    <li>
+                        <a href="/tools/" class="text-lg font-semibold hover:underline hover:text-cyan-500">
+                            Tools
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://tracker.rhizome.dev/governance/"
+                            class="text-lg font-semibold hover:underline hover:text-cyan-500">
+                            Governance
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
         <main class="flex flex-col flex-1 w-full gap-3 p-3 overflow-y-auto items-center">
             {% block container %}{% endblock %}
         </main>

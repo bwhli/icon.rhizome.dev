@@ -19,10 +19,32 @@ class Utils:
 
     @staticmethod
     def hex_to_int(value: str):
-        value_int = int(value, 16)
-        return value_int
+        return int(value, 16)
+
+    @staticmethod
+    def int_to_hex(value: int):
+        return hex(value)
 
     @staticmethod
     def fmt(value: float | int) -> str:
-        value_str = f"{value:,.4f}".rstrip("0")
-        return value_str
+        if isinstance(value, int):
+            return f"{value:,}"
+        else:
+            value_str = f"{value:,.4f}".rstrip("0")
+            return value_str
+
+    @staticmethod
+    def format_number(value: float | int, decimal_places: int = 4) -> str:
+
+        if float(value) == int(value):
+            value = int(value)
+
+        if isinstance(value, int):
+            return f"{value:,}"
+        else:
+            value_str = f"{value:,.{decimal_places}f}".rstrip("0")
+            return value_str
+
+    @staticmethod
+    def format_percentage(value: float) -> str:
+        return f"{value:.2%}"

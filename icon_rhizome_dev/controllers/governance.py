@@ -1,7 +1,7 @@
-from starlite import Controller, get
+from starlite import Controller, Template, get
 
-from icon_rhizome_dev.constants import API_PREFIX
-from icon_rhizome_dev.icx import Icx
+from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME, EXA
+from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.governance import Validator
 from icon_rhizome_dev.tracker import Tracker
 
@@ -11,12 +11,48 @@ class GovernanceController(Controller):
     A controller for routes relating to ICON governance.
     """
 
-    path = f"{API_PREFIX}/governance"
+    path = "/governance"
 
-    @get(path="/validators/")
-    async def get_validators(self) -> list[Validator]:
+    @get(path="/")
+    async def get_governance(self) -> Template:
         """
         Returns information about all ICON validators.
         """
-        validators = Icx.get_validators()
-        return validators
+        return Template(
+            name="governance/index.html",
+            context={},
+        )
+
+    @get(path="/htmx/validators/", cache=BLOCK_TIME)
+    async def get_htmx_validators(self) -> Template:
+
+        # Get network info.
+        network_info = await IcxAsync.get_network_info()
+        total_power = network_info["totalPower"] / EXA
+        i_global = network_info["rewardFund"]["Iglobal"] / EXA
+        i_prep = network_info["rewardFund"]["Iprep"] / 100
+
+        # Get ICX/USD price.
+        icx_usd_price = await IcxAsync.get_icx_usd_price()
+
+        # Get validators.
+        validators = await IcxAsync.get_validators()
+
+        # Calculate daily/monthly rewards for validators.
+        for validator in validators:
+            monthly_reward = (validator.power / total_power) * (i_global * i_prep)
+            monthly_reward_usd = monthly_reward * icx_usd_price
+            daily_reward = (monthly_reward * 12) / 365
+            daily_reward_usd = daily_reward * icx_usd_price
+            validator.reward_monthly = monthly_reward
+            validator.reward_monthly_usd = monthly_reward_usd
+            validator.reward_daily = daily_reward
+            validator.reward_daily_usd = daily_reward_usd
+
+        return Template(
+            name="governance/htmx/validators.html",
+            context={
+                "validators": validators,
+                "icx_usd_price": icx_usd_price,
+            },
+        )

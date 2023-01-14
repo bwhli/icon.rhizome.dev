@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block container %}
+<div id="container" class="max-w-full w-full py-16">
+    <div class="overflow-x-scroll">
+        <table class="table-auto min-w-full border border-gray-700 font-mono bg-gray-900"
+            hx-get="/governance/htmx/validators/" hx-trigger="load, every 2s"></table>
+    </div>
+
+</div>
+{% endblock %}

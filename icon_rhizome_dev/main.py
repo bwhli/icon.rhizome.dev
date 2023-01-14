@@ -1,6 +1,15 @@
 import os
+from datetime import datetime
 
-from starlite import CacheConfig, Request, Starlite, Template, TemplateConfig, get
+from starlite import (
+    CacheConfig,
+    Request,
+    Starlite,
+    StaticFilesConfig,
+    Template,
+    TemplateConfig,
+    get,
+)
 from starlite.cache.redis_cache_backend import (
     RedisCacheBackend,
     RedisCacheBackendConfig,
@@ -26,6 +35,14 @@ redis_config = RedisCacheBackendConfig(
 redis_backend = RedisCacheBackend(config=redis_config)
 cache_config = CacheConfig(backend=redis_backend)
 
+template_config = TemplateConfig(
+    directory=f"{PROJECT_DIR}/templates",
+    engine=JinjaTemplateEngine,
+)
+template_config.engine_instance.engine.globals["now"] = int(datetime.now().timestamp())
+template_config.engine_instance.engine.globals["format_number"] = Utils.format_number
+template_config.engine_instance.engine.globals["format_percentage"] = Utils.format_percentage  # fmt: skip
+
 
 @get("/", cache=2)
 def home_handler(request: Request) -> Template:
@@ -45,8 +62,8 @@ app = Starlite(
         TransactionController,
         home_handler,
     ],
-    template_config=TemplateConfig(
-        directory=f"{PROJECT_DIR}/templates",
-        engine=JinjaTemplateEngine,
-    ),
+    static_files_config=[
+        StaticFilesConfig(directories=[f"{PROJECT_DIR}/static"], path="/static"),
+    ],
+    template_config=template_config,
 )

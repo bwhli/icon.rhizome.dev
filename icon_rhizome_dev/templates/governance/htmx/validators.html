@@ -1,0 +1,61 @@
+<thead>
+    <tr>
+        <th class="text-left px-1 py-3 border border-gray-800 bg-gray-900 whitespace-nowrap text-center">#</th>
+        <th class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">Name</th>
+        <th class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap text-center">CPS</th>
+        <th class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">Delegation</th>
+        <th class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">Power</th>
+        <th class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">Bond</th>
+        <th class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">Productivity</th>
+        <th class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">Daily Reward</th>
+        <th class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">Monthly Reward</th>
+    </tr>
+</thead>
+<tbody>
+    {% for validator in validators %}
+    <tr>
+        <td class="text-left px-1 py-3 border border-gray-800 bg-gray-900 whitespace-nowrap text-center">
+            {{ loop.index }}
+        </td>
+        <td class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">
+            <p class="font-bold">{{ validator.name }}</p>
+            <div class="flex gap-2 items-center">
+                <p class="text-sm text-gray-400">{{ validator.address }}</p>
+                <button class="text-sm">&#9660;</button>
+            </div>
+
+            {% if validator.address != validator.node_address %}
+            <p class="text-sm text-gray-400">{{ validator.node_address }}</p>
+            {% endif %}
+        </td>
+        <td class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap text-center">YES</td>
+        <td class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">
+            {{ format_number(validator.delegated, decimal_places=0) }} ICX
+        </td>
+        <td class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">
+            {{ format_number(validator.power, decimal_places=0) }} ICX
+        </td>
+        <td class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">
+            {{ format_number(validator.bonded, decimal_places=0) }} ICX
+        </td>
+        <td class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">
+            <p>{{ format_percentage(validator.productivity) }}</p>
+            <p class="text-sm text-gray-400">
+                {{ format_number(validator.validated_blocks) }}/{{ format_number(validator.total_blocks) }}
+            </p>
+        </td>
+        <td class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">
+            <p>{{ format_number(validator.reward_daily) }} ICX</p>
+            <p class="text-sm text-gray-400">
+                {{ format_number(validator.reward_daily_usd) }} USD
+            </p>
+        </td>
+        <td class="text-left p-3 border border-gray-800 bg-gray-900 whitespace-nowrap">
+            <p>{{ format_number(validator.reward_monthly) }} ICX</p>
+            <p class="text-sm text-gray-400">
+                {{ format_number(validator.reward_monthly_usd) }} USD
+            </p>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

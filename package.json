@@ -1,0 +1,28 @@
+{
+  "name": "icon.rhizome.dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "dev-build": "npx tailwindcss -i ./icon_rhizome_dev/assets/css/main.css -o ./icon_rhizome_dev/static/css/style.css --watch",
+    "dev-server": "uvicorn icon_rhizome_dev.main:app --reload",
+    "dev": "concurrently --kill-others \"npm run dev-build\" \"npm run dev-server\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bwhli/icon.rhizome.dev.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bwhli/icon.rhizome.dev/issues"
+  },
+  "homepage": "https://github.com/bwhli/icon.rhizome.dev#readme",
+  "dependencies": {
+    "tailwindcss": "^3.2.4"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
