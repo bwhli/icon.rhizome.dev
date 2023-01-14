@@ -39,6 +39,9 @@ class Utils:
         if float(value) == int(value):
             value = int(value)
 
+        if decimal_places == 0:
+            value = int(value)
+
         if isinstance(value, int):
             return f"{value:,}"
         else:
@@ -47,4 +50,6 @@ class Utils:
 
     @staticmethod
     def format_percentage(value: float) -> str:
+        if int(value) == float(value):
+            return f"{int(value)}%"
         return f"{value:.2%}"

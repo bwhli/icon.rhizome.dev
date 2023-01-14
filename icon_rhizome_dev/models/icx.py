@@ -81,6 +81,7 @@ class IcxValidator(BaseModel):
     bonded: float
     city: str
     country: str
+    cps: bool = False
     delegated: float
     details: str
     email: str

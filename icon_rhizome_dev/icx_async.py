@@ -10,6 +10,15 @@ class IcxAsync(Icx):
         pass
 
     @classmethod
+    async def get_cps_validator_addresses(cls, height: int = None):
+        result = await cls.call(
+            "cx9f4ab72f854d3ccdc59aa6f2c3e2215dd62e879f",
+            "get_PReps",
+        )
+        validators = [validator["address"] for validator in result]
+        return validators
+
+    @classmethod
     async def get_icx_usd_price(cls, height: int = None):
         params = {"_symbol": "ICX"}
         result = await cls.call(

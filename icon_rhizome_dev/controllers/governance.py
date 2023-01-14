@@ -1,6 +1,10 @@
-from starlite import Controller, Template, get
+import asyncio
+import hashlib
 
-from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME, EXA
+import orjson
+from starlite import Controller, Request, Template, get
+
+from icon_rhizome_dev.constants import BLOCK_TIME, EXA
 from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.governance import Validator
 from icon_rhizome_dev.tracker import Tracker
@@ -24,19 +28,18 @@ class GovernanceController(Controller):
         )
 
     @get(path="/htmx/validators/", cache=BLOCK_TIME)
-    async def get_htmx_validators(self) -> Template:
+    async def get_htmx_validators(self, request: Request) -> Template:
 
-        # Get network info.
-        network_info = await IcxAsync.get_network_info()
+        network_info, icx_usd_price, validators, cps_validators = await asyncio.gather(
+            IcxAsync.get_network_info(),
+            IcxAsync.get_icx_usd_price(),
+            IcxAsync.get_validators(),
+            IcxAsync.get_cps_validator_addresses(),
+        )
+
         total_power = network_info["totalPower"] / EXA
         i_global = network_info["rewardFund"]["Iglobal"] / EXA
         i_prep = network_info["rewardFund"]["Iprep"] / 100
-
-        # Get ICX/USD price.
-        icx_usd_price = await IcxAsync.get_icx_usd_price()
-
-        # Get validators.
-        validators = await IcxAsync.get_validators()
 
         # Calculate daily/monthly rewards for validators.
         for validator in validators:
@@ -48,6 +51,9 @@ class GovernanceController(Controller):
             validator.reward_monthly_usd = monthly_reward_usd
             validator.reward_daily = daily_reward
             validator.reward_daily_usd = daily_reward_usd
+
+            if validator.address in cps_validators:
+                validator.cps = True
 
         return Template(
             name="governance/htmx/validators.html",

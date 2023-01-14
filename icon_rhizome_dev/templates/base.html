@@ -18,6 +18,9 @@
         <script src="https://unpkg.com/htmx.org@1.8.4"></script>
         <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
         <link rel="stylesheet" href="/static/css/style.css?{{ NOW }}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
         {% block head_scripts %}{% endblock %}
     </head>
 
@@ -34,8 +37,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="https://tracker.rhizome.dev/governance/"
-                            class="text-lg font-semibold hover:underline hover:text-cyan-500">
+                        <a href="/governance/" class="text-lg font-semibold hover:underline hover:text-cyan-500">
                             Governance
                         </a>
                     </li>

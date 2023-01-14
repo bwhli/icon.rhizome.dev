@@ -17,6 +17,7 @@ from starlite.cache.redis_cache_backend import (
 from starlite.contrib.jinja import JinjaTemplateEngine
 
 from icon_rhizome_dev import ENV
+from icon_rhizome_dev.constants import BLOCK_TIME
 from icon_rhizome_dev.controllers.address import AddressController
 from icon_rhizome_dev.controllers.governance import GovernanceController
 from icon_rhizome_dev.controllers.tools import ToolsController
@@ -39,7 +40,9 @@ template_config = TemplateConfig(
     directory=f"{PROJECT_DIR}/templates",
     engine=JinjaTemplateEngine,
 )
-template_config.engine_instance.engine.globals["now"] = int(datetime.now().timestamp())
+template_config.engine_instance.engine.globals["BLOCK_TIME"] = BLOCK_TIME
+template_config.engine_instance.engine.globals["NOW"] = int(datetime.now().timestamp())
+
 template_config.engine_instance.engine.globals["format_number"] = Utils.format_number
 template_config.engine_instance.engine.globals["format_percentage"] = Utils.format_percentage  # fmt: skip
 
