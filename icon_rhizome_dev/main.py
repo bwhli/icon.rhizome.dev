@@ -17,15 +17,13 @@ from starlite.cache.redis_cache_backend import (
 from starlite.contrib.jinja import JinjaTemplateEngine
 
 from icon_rhizome_dev import ENV
-from icon_rhizome_dev.constants import BLOCK_TIME
+from icon_rhizome_dev.constants import BLOCK_TIME, PROJECT_DIR
 from icon_rhizome_dev.controllers.address import AddressController
 from icon_rhizome_dev.controllers.governance import GovernanceController
 from icon_rhizome_dev.controllers.tools import ToolsController
 from icon_rhizome_dev.controllers.transaction import TransactionController
 from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.utils import Utils
-
-PROJECT_DIR = os.path.dirname(__file__)
 
 # Configure Redis cache settings.
 redis_config = RedisCacheBackendConfig(

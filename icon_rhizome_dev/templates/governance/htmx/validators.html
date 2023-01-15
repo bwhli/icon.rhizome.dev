@@ -19,8 +19,16 @@
             {{ loop.index }}
         </td>
         <td class="text-left px-3 py-2 border-2 border-gray-800 whitespace-nowrap">
-            <p class="font-bold">{{ validator.name }}</p>
-            <p class="text-sm text-cyan-500">{{ validator.address }}</p>
+            <div class="flex gap-4 items-center">
+                {% if (validator.address + "_128px.png") in validator_images %}
+                <img src="/static/images/validators/{{ validator.address }}_128px.png"
+                    class="w-12 h-12 rounded-full border-2 p-0.5 border-gray-800" />
+                {% endif%}
+                <div>
+                    <p class="font-bold">{{ validator.name }}</p>
+                    <p class="text-sm text-cyan-500">{{ validator.address }}</p>
+                </div>
+            </div>
         </td>
         <td class="text-left px-1.5 py-2 border-2 border-gray-800 whitespace-nowrap text-center">
             {% if validator.cps == True %}

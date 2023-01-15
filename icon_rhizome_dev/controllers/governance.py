@@ -1,10 +1,11 @@
 import asyncio
 import hashlib
+from pathlib import Path
 
 import orjson
 from starlite import Controller, Request, Template, get
 
-from icon_rhizome_dev.constants import BLOCK_TIME, EXA
+from icon_rhizome_dev.constants import BLOCK_TIME, EXA, PROJECT_DIR
 from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.governance import Validator
 from icon_rhizome_dev.tracker import Tracker
@@ -55,10 +56,16 @@ class GovernanceController(Controller):
             if validator.address in cps_validators:
                 validator.cps = True
 
+        validator_images = [
+            image.name
+            for image in Path(f"{PROJECT_DIR}/static/images/validators").glob("*.png")
+        ]
+
         return Template(
             name="governance/htmx/validators.html",
             context={
                 "validators": validators,
                 "icx_usd_price": icx_usd_price,
+                "validator_images": validator_images,
             },
         )
