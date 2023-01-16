@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
 {% block container %}
-<div id="container" class="w-full max-w-full">
-    <div class="overflow-x-scroll">
-        <table class="font-robotomono min-w-full table-auto" hx-get="/governance/htmx/validators/" hx-trigger="load">
-        </table>
+<div id="container" class="flex flex-col w-full max-w-full">
+    <div id="validators"
+        hx-get="/governance/htmx/validators/{% if block_number %}?block_number{{ block_number }}{% endif %}"
+        hx-trigger="load">
     </div>
-    <div id="node-status-check-modal"></div>
 </div>
 {% endblock %}

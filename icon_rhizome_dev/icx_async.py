@@ -14,28 +14,42 @@ class IcxAsync(Icx):
         pass
 
     @classmethod
-    async def get_cps_validator_addresses(cls, height: int = None):
+    async def get_last_block(cls, height_only=False):
+        payload = {"jsonrpc": "2.0", "method": "icx_getLastBlock", "id": 1234}
+        result = await cls._make_api_request(payload)
+        if height_only is True:
+            return result["height"]
+        return result
+
+    @classmethod
+    async def get_cps_validator_addresses(cls, block_number: int = 0):
         result = await cls.call(
             "cx9f4ab72f854d3ccdc59aa6f2c3e2215dd62e879f",
             "get_PReps",
+            block_number=block_number,
         )
         validators = [validator["address"] for validator in result]
         return validators
 
     @classmethod
-    async def get_icx_usd_price(cls, height: int = None):
+    async def get_icx_usd_price(cls, block_number: int = 0):
         params = {"_symbol": "ICX"}
         result = await cls.call(
             "cx087b4164a87fdfb7b714f3bafe9dfb050fd6b132",
             "get_ref_data",
             params,
+            block_number=block_number,
         )
         icx_usd_price = Utils.hex_to_int(result["rate"]) / 1000000000
         return icx_usd_price
 
     @classmethod
-    async def get_network_info(cls, height: int = None):
-        result = await cls.call(cls.CHAIN_CONTRACT, "getNetworkInfo")
+    async def get_network_info(cls, block_number: int = 0):
+        result = await cls.call(
+            cls.CHAIN_CONTRACT,
+            "getNetworkInfo",
+            block_number=block_number,
+        )
         for k, v in result.items():
             if isinstance(v, str):
                 result[k] = Utils.hex_to_int(v)
@@ -49,12 +63,18 @@ class IcxAsync(Icx):
         cls,
         start_ranking: int = 1,
         end_ranking: int = 200,
+        block_number: int = 0,
     ):
         params = {
             "startRanking": Utils.int_to_hex(start_ranking),
             "endRanking": Utils.int_to_hex(end_ranking),
         }
-        result = await cls.call(cls.CHAIN_CONTRACT, "getPReps", params)
+        result = await cls.call(
+            cls.CHAIN_CONTRACT,
+            "getPReps",
+            params,
+            block_number=block_number,
+        )
         validators = [IcxValidator(**validator) for validator in result["preps"]]
         return validators
 
@@ -64,7 +84,7 @@ class IcxAsync(Icx):
         to_address: str,
         method: str,
         params: dict = {},
-        height: int | None = None,
+        block_number: int = 0,
     ):
         payload = {
             "jsonrpc": "2.0",
@@ -76,10 +96,13 @@ class IcxAsync(Icx):
                 "data": {
                     "method": method,
                     "params": params,
-                    "height": height,
                 },
             },
         }
+        # Add height param to payload if height is provided.
+        if block_number != 0:
+            payload["params"]["height"] = Utils.int_to_hex(block_number)
+
         result = await cls._make_api_request(payload)
         return result
 

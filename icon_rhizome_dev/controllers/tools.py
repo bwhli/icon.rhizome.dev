@@ -9,6 +9,7 @@ from starlite import Body, Controller, RequestEncodingType, Template, get, post
 
 from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME
 from icon_rhizome_dev.icx import Icx
+from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.icx import IcxTransaction
 from icon_rhizome_dev.s3 import S3
 from icon_rhizome_dev.tracker import Tracker
@@ -107,10 +108,12 @@ class ToolsController(Controller):
 
         async def _generate_iscore_claim_record(transaction: IcxTransaction):
             try:
+                iscore_claimed, icx_usd_price = await asyncio.gather(
+                    Tracker.get_iscore_claimed(transaction.hash),
+                    IcxAsync.get_icx_usd_price(block_number),
+                )
                 block_number = transaction.block_number
                 block_timestamp = transaction.block_timestamp / 1000000
-                iscore_claimed = await Tracker.get_iscore_claimed(transaction.hash)
-                icx_usd_price = Icx.get_icx_usd_price(block_number)
                 transaction_date = datetime.utcfromtimestamp(block_timestamp).isoformat()  # fmt: skip
                 icx_claimed = iscore_claimed / 10**18 / 1000
                 iscore_claim_record = {

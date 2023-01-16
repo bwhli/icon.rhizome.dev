@@ -20,7 +20,7 @@ class GovernanceController(Controller):
     path = "/governance"
 
     @get(path="/")
-    async def get_governance(self) -> Template:
+    async def get_governance(self, block_number: int = 0) -> Template:
         """
         Returns information about all ICON validators.
         """
@@ -28,17 +28,22 @@ class GovernanceController(Controller):
             name="governance/index.html",
             context={
                 "title": "Governance",
+                "block_number": block_number,
             },
         )
 
     @get(path="/htmx/validators/", cache=BLOCK_TIME)
-    async def get_htmx_validators(self) -> Template:
+    async def get_htmx_validators(self, block_number: int = 0) -> Template:
+
+        if block_number < 0:
+            last_block_number = await IcxAsync.get_last_block(height_only=True)
+            block_number = last_block_number - abs(block_number)
 
         network_info, icx_usd_price, validators, cps_validators = await asyncio.gather(
-            IcxAsync.get_network_info(),
-            IcxAsync.get_icx_usd_price(),
-            IcxAsync.get_validators(),
-            IcxAsync.get_cps_validator_addresses(),
+            IcxAsync.get_network_info(block_number=block_number),
+            IcxAsync.get_icx_usd_price(block_number=block_number),
+            IcxAsync.get_validators(block_number=block_number),
+            IcxAsync.get_cps_validator_addresses(block_number=block_number),
         )
 
         total_power = network_info["totalPower"] / EXA

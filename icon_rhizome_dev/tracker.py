@@ -199,8 +199,3 @@ class Tracker:
                 return True
 
         return False
-
-
-import asyncio
-
-test = asyncio.run(Tracker.get_validator_node_hostnames())
