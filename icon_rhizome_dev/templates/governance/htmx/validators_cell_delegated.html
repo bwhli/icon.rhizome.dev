@@ -1,0 +1,4 @@
+<td id="{{ validator.address }}-delegated" class="whitespace-nowrap px-3 py-2 text-left"
+    {% if hx_swap_oob %}hx-swap-oob="true" {% endif %}>
+    {{ format_number(validator.delegated, decimal_places=0) }} ICX
+</td>

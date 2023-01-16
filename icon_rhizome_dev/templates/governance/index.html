@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 
 {% block container %}
-<div id="container" class="flex flex-col w-full max-w-full">
-    <div id="validators"
-        hx-get="/governance/htmx/validators/{% if block_number %}?block_number{{ block_number }}{% endif %}"
-        hx-trigger="load">
+<div id="container" class="flex flex-col w-full px-4">
+    <div id="validators" hx-get="/governance/htmx/validators/" hx-trigger="load, every 30s">
     </div>
 </div>
 {% endblock %}

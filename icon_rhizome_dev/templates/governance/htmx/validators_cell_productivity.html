@@ -1,0 +1,20 @@
+<td id="{{ validator.address }}-productivity" class="whitespace-nowrap px-3 py-2 text-left"
+    {% if hx_swap_oob %}hx-swap-oob="true" {% endif %}>
+    {% if validator.total_blocks != 0 %}
+    {% if validator.productivity > 0.99 %}
+    {% set validator_text_color = "text-green-500" %}
+    {% elif validator.productivity < 0.99 and validator.productivity > 0.98%}
+    {% set validator_text_color = "text-yellow-500" %}
+    {% elif validator.productivity < 0.98 and validator.productivity > 0.97%}
+    {% set validator_text_color = "text-orange-500" %}
+    {% elif validator.productivity < 0.97%}
+    {% set validator_text_color = "text-red-500" %}
+    {% endif %}
+    {% endif %}
+    <p class="{{ validator_text_color }}">
+        {{ format_percentage(validator.productivity) }}
+    </p>
+    <p class=" text-sm text-gray-400">
+        {{ format_number(validator.validated_blocks) }}/{{ format_number(validator.total_blocks) }}
+    </p>
+</td>

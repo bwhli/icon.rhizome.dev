@@ -1,0 +1,20 @@
+<td id="{{ validator.address }}-identity" class="whitespace-nowrap px-3 py-2 text-left"
+    {% if hx_swap_oob %}hx-swap-oob="true" {% endif %}>
+    <div class="flex gap-2">
+        <div class="w-12 h-12">
+            {% if (validator.address + "_128px.png") in validator_images %}
+            <img id="{{ validator.address }}-logo" src="/static/images/validators/{{ validator.address }}_128px.png"
+                class="rounded-full border-2 p-0.5 border-gray-800 block" />
+            {% else %}
+            <img id="{{ validator.address }}-logo" src="/static/images/validators/validator_128px.png"
+                class="rounded-full border-2 p-0.5 border-gray-800 block" />
+            {% endif%}
+        </div>
+        <div class="grow">
+            <p id="{{ validator.address }}-name" class="font-bold">{{ validator.name }}</p>
+            <p id="{{ validator.address }}-address" class="text-cyan-500 text-sm">
+                {{ validator.address }}
+            </p>
+        </div>
+    </div>
+</td>

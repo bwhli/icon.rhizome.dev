@@ -1,0 +1,7 @@
+<td id="{{ validator.address }}-monthly-reward" class="whitespace-nowrap px-3 py-2 text-left"
+    {% if hx_swap_oob %}hx-swap-oob="true" {% endif %}>
+    <p>{{ format_number(validator.reward_daily) }} ICX</p>
+    <p class="text-sm text-gray-400">
+        {{ format_number(validator.reward_daily_usd) }} USD
+    </p>
+</td>

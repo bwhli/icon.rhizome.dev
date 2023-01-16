@@ -1,0 +1,20 @@
+<td id="{{ validator.address }}-bond" class="whitespace-nowrap px-3 py-2 text-left"
+    {% if hx_swap_oob %}hx-swap-oob="true" {% endif %}>
+
+    {% if validator.bond_ratio != 0 %}
+    {% if validator.bond_ratio >= 0.05 %}
+    {% set bond_ratio_text_color = "text-green-500" %}
+    {% elif validator.bond_ratio < 0.05 and validator.bond_ratio > 0.04 %}
+    {% set bond_ratio_text_color = "text-yellow-500" %}
+    {% elif validator.bond_ratio < 0.04 and validator.bond_ratio > 0.03 %}
+    {% set bond_ratio_text_color = "text-orange-500" %}
+    {% elif validator.bond_ratio < 0.03 %}
+    {% set bond_ratio_text_color = "text-red-500" %}
+    {% endif %}
+    {% endif %}
+
+    <p class="{{ bond_ratio_text_color }}">
+        {{ format_percentage(validator.bond_ratio) }}</p>
+    <p class="text-sm text-gray-400">{{ format_number(validator.bonded, decimal_places=0) }} ICX
+    </p>
+</td>

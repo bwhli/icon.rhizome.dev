@@ -4,7 +4,7 @@ from pathlib import Path
 
 import httpx
 import orjson
-from starlite import Controller, Request, Template, get
+from starlite import Controller, Parameter, Request, Template, get
 
 from icon_rhizome_dev.constants import BLOCK_TIME, EXA, PROJECT_DIR
 from icon_rhizome_dev.icx_async import IcxAsync
@@ -33,8 +33,19 @@ class GovernanceController(Controller):
         )
 
     @get(path="/htmx/validators/", cache=BLOCK_TIME)
-    async def get_htmx_validators(self, block_number: int = 0) -> Template:
+    async def get_htmx_validators(
+        self,
+        block_number: int = 0,
+        sort_by: str = None,
+        sort_dir: str = "asc",
+        column: str = None,
+    ) -> Template:
 
+        # Convert string None to "None None".
+        column = None if column == "None" else column
+        sort_by = None if sort_by == "None" else sort_by
+
+        # If block number is negative, get current block and substract absolute value of "block_number" from it.
         if block_number < 0:
             last_block_number = await IcxAsync.get_last_block(height_only=True)
             block_number = last_block_number - abs(block_number)
@@ -64,18 +75,40 @@ class GovernanceController(Controller):
             if validator.address in cps_validators:
                 validator.cps = True
 
+        # Sort validators by key.
+        if sort_by is not None:
+            validators = sorted(
+                validators,
+                key=lambda x: getattr(x, sort_by),
+                reverse=True if sort_dir == "desc" else False,
+            )
+
+        # Get a list of validator images that are in the repo.
         validator_images = [
             image.name
             for image in Path(f"{PROJECT_DIR}/static/images/validators").glob("*.png")
         ]
 
+        # Build template context.
+        context = {
+            "block_number": block_number,
+            "validators": validators,
+            "icx_usd_price": icx_usd_price,
+            "validator_images": validator_images,
+            "sort_by": sort_by,
+            "sort_dir": sort_dir,
+        }
+
+        # Only return column if column is specified.
+        if column is not None:
+            return Template(
+                name=f"governance/htmx/validators_column_{column}.html",
+                context=context,
+            )
+
         return Template(
             name="governance/htmx/validators.html",
-            context={
-                "validators": validators,
-                "icx_usd_price": icx_usd_price,
-                "validator_images": validator_images,
-            },
+            context=context,
         )
 
     @get(path="/htmx/node-status-check-modal/")

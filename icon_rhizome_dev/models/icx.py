@@ -79,6 +79,7 @@ class IcxTransaction(BaseModel):
 class IcxValidator(BaseModel):
     address: str
     bonded: float
+    bond_ratio: float = None
     city: str
     country: str
     cps: bool = False
@@ -116,6 +117,12 @@ class IcxValidator(BaseModel):
                     values[k] = Utils.hex_to_int(v)
             except ValueError:
                 continue
+
+        # Calculate bond ratio.
+        try:
+            values["bond_ratio"] = values["bonded"] / values["delegated"]
+        except ZeroDivisionError:
+            values["bond_ratio"] = 0
 
         # Calculate productivity.
         try:

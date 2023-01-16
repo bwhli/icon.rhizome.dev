@@ -1,0 +1,7 @@
+{% for validator in validators %}
+
+{% with hx_swap_oob=True %}
+{% include "governance/htmx/validators_cell_productivity.html" %}
+{% endwith %}
+
+{% endfor %}
