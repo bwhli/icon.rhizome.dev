@@ -1,0 +1,2 @@
+class OfflineNodeException:
+    pass

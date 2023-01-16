@@ -1,0 +1,22 @@
+<div class="fixed inset-0 z-10 flex flex-col items-center justify-center w-full h-screen">
+    <div class="relative flex flex-col items-center w-full max-w-xl p-8 bg-gray-900 border-2 border-gray-700">
+        <button id="close-node-status-check-modal" class="top-4 right-4 absolute"
+            _="on click remove #node-status-check-modal.children">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+        <div class="flex flex-col gap-4">
+            <h1 class="text-4xl font-bold text-center">Node Status Check</h1>
+            <div>
+                <p class="font-robotomono text-gray-300">Address: {{ address }}</p>
+                <p class="font-robotomono text-gray-300">Endpoint: http://{{ hostname }}:9000</p>
+            </div>
+            <div hx-get="/governance/htmx/node-status-check-result/?hostname={{ hostname }}" hx-trigger="load">
+                <p class="text-center">Fetching node status...</p>
+            </div>
+        </div>
+    </div>
+</div>

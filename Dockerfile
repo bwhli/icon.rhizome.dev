@@ -8,8 +8,7 @@ COPY ./requirements.txt /code/requirements.txt
 
 # Install Python dependencies
 RUN apt update -y
-RUN apt install build-essential -y
-RUN apt install pkgconf -y
+RUN apt install build-essential pkgconf -y
 RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 

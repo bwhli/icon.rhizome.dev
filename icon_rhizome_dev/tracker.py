@@ -1,10 +1,13 @@
 import json
 
+import orjson
+
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http_client import HttpClient
 from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.governance import Validator
 from icon_rhizome_dev.models.icx import IcxAddress, IcxTransaction
+from icon_rhizome_dev.redis_client import RedisClient
 
 
 class Tracker:
@@ -72,6 +75,15 @@ class Tracker:
         return iscore_claimed
 
     @staticmethod
+    async def get_api_endpoint(address: str) -> str:
+        url = f"{TRACKER_API_ENDPOINT}/governance/preps/{address}"
+        r = await HttpClient.get(url)
+        data = r.json()
+        validator = data[0]
+        api_endpoint = validator.get("api_endpoint")
+        return api_endpoint
+
+    @staticmethod
     async def get_transaction(tx_hash: str) -> IcxTransaction:
         """
         Returns details about an ICX transaction.
@@ -133,6 +145,30 @@ class Tracker:
             return None
 
     @staticmethod
+    async def get_validator_node_hostnames():
+        # Return cached data from Redis if it exists.
+        REDIS_KEY = "VALIDATOR_NODE_HOSTNAMES"
+        cached_data = await RedisClient.get(REDIS_KEY)
+        if cached_data is not None:
+            return orjson.loads(cached_data)
+
+        # Fetch data from Tracker API if there is no cached data.
+        url = f"{TRACKER_API_ENDPOINT}/governance/preps"
+        r = await HttpClient.get(url)
+        data = r.json()
+        hostnames = {
+            validator.get("address"): {
+                "api_endpoint": validator.get("api_endpoint"),
+                "p2p_endpoint": validator.get("p2p_endpoint"),
+            }
+            for validator in data
+        }
+
+        # Store data in Redis for 3600s.
+        await RedisClient.set(REDIS_KEY, orjson.dumps(hostnames), 3600)
+        return hostnames
+
+    @staticmethod
     async def is_approved_voter(address: str):
         url = f"{TRACKER_API_ENDPOINT}/governance/delegations/{address}?skip=0&limit=100"  # fmt: skip
         approved_validators = [
@@ -163,3 +199,8 @@ class Tracker:
                 return True
 
         return False
+
+
+import asyncio
+
+test = asyncio.run(Tracker.get_validator_node_hostnames())

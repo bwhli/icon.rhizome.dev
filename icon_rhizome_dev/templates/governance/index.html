@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block container %}
-<div id="container" class="max-w-full w-full">
+<div id="container" class="w-full max-w-full">
     <div class="overflow-x-scroll">
-        <table class="table-auto min-w-full font-robotomono" hx-get="/governance/htmx/validators/"
-            hx-trigger="load, every 30s"></table>
+        <table class="font-robotomono min-w-full table-auto" hx-get="/governance/htmx/validators/" hx-trigger="load">
+        </table>
     </div>
-
+    <div id="node-status-check-modal"></div>
 </div>
 {% endblock %}

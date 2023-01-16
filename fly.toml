@@ -1,4 +1,4 @@
-# fly.toml file generated for icon-rhizome-dev on 2023-01-13T18:48:09+09:00
+# fly.toml file generated for icon-rhizome-dev on 2023-01-15T20:06:13+09:00
 
 app = "icon-rhizome-dev"
 kill_signal = "SIGINT"

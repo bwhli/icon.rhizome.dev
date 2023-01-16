@@ -1,7 +1,11 @@
+import asyncio
+
 import httpx
 
+from icon_rhizome_dev.exceptions import OfflineNodeException
 from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.icx import IcxValidator
+from icon_rhizome_dev.redis_client import RedisClient
 from icon_rhizome_dev.utils import Utils
 
 
@@ -78,6 +82,35 @@ class IcxAsync(Icx):
         }
         result = await cls._make_api_request(payload)
         return result
+
+    @classmethod
+    async def get_node_status(cls, hostname: str) -> bool:
+        async def _make_request(hostname: str) -> int:
+            # Make request to ICON node.
+            async with httpx.AsyncClient() as client:
+                url = f"http://{hostname}:9000/admin/chain"
+                print(url)
+                r = await client.get(url)
+            # Decode node status.
+            data = r.json()
+            node_status = data[0]
+            if node_status.get("state") != "started":
+                raise OfflineNodeException
+            else:
+                return node_status["height"]
+
+        check_count = 3
+        node_status_checks = []
+
+        for _ in range(check_count):
+            node_status = await _make_request(hostname)
+            node_status_checks.append(node_status)
+            await asyncio.sleep(2)
+
+        if len(set(node_status_checks)) != 1:
+            return True
+        else:
+            return False
 
     @classmethod
     async def _make_api_request(cls, payload):

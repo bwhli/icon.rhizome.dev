@@ -2,6 +2,7 @@ import asyncio
 import hashlib
 from pathlib import Path
 
+import httpx
 import orjson
 from starlite import Controller, Request, Template, get
 
@@ -25,11 +26,13 @@ class GovernanceController(Controller):
         """
         return Template(
             name="governance/index.html",
-            context={},
+            context={
+                "title": "Governance",
+            },
         )
 
     @get(path="/htmx/validators/", cache=BLOCK_TIME)
-    async def get_htmx_validators(self, request: Request) -> Template:
+    async def get_htmx_validators(self) -> Template:
 
         network_info, icx_usd_price, validators, cps_validators = await asyncio.gather(
             IcxAsync.get_network_info(),
@@ -68,4 +71,33 @@ class GovernanceController(Controller):
                 "icx_usd_price": icx_usd_price,
                 "validator_images": validator_images,
             },
+        )
+
+    @get(path="/htmx/node-status-check-modal/")
+    async def get_htmx_node_status_check_modal(
+        self,
+        address: str,
+        hostname: str = None,
+    ) -> Template:
+
+        if hostname is None:
+            api_endpoint = await Tracker.get_api_endpoint(address)
+            hostname = api_endpoint.replace(":9000", "")
+            hostname = hostname.replace("http://", "")
+            hostname = hostname.replace("https://", "")
+
+        return Template(
+            name="governance/htmx/node_status_check_modal.html",
+            context={"address": address, "hostname": hostname},
+        )
+
+    @get(path="/htmx/node-status-check-result/")
+    async def get_htmx_node_status_check(
+        self,
+        hostname: str = None,
+    ) -> Template:
+        node_status = await IcxAsync.get_node_status(hostname)
+        return Template(
+            name="governance/htmx/node_status_check_result.html",
+            context={"result": node_status},
         )
