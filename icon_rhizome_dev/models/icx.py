@@ -76,6 +76,11 @@ class IcxTransaction(BaseModel):
             return Result(default=0, string=Utils.int_to_string(0))
 
 
+class IcxValidatorIdentity(BaseModel):
+    address: str
+    name: str
+
+
 class IcxValidator(BaseModel):
     address: str
     bonded: float

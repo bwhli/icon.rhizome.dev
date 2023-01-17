@@ -67,6 +67,7 @@ app = Starlite(
             "icon.rhizome.dev",
         ],
     ),
+    cache_config=cache_config,
     compression_config=CompressionConfig(backend="brotli", brotli_gzip_fallback=True),
     route_handlers=[
         AddressController,

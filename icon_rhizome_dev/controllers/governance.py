@@ -2,17 +2,17 @@ import asyncio
 import hashlib
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
-import httpx
-import orjson
 from htmlmin.minify import html_minify
 from rich import inspect
 from starlette.responses import HTMLResponse
 from starlite import Controller, MediaType, Parameter, Request, Response, Template, get
+from starlite.datastructures import ResponseHeader
 
 from icon_rhizome_dev.constants import BLOCK_TIME, EXA, PROJECT_DIR
 from icon_rhizome_dev.icx_async import IcxAsync
-from icon_rhizome_dev.models.governance import Validator
+from icon_rhizome_dev.models.icx import IcxValidatorIdentity
 from icon_rhizome_dev.tracker import Tracker
 
 
@@ -22,6 +22,9 @@ class GovernanceController(Controller):
     """
 
     path = "/governance"
+
+    def generate_etag(self, input: Any):
+        return hashlib.sha1(input.encode("utf-8")).hexdigest()
 
     async def process_block_number(self, block_number: int = 0):
         # Historical querying is not supported before this block.
@@ -120,8 +123,15 @@ class GovernanceController(Controller):
 
     @get(path="/htmx/validators/column/{column:str}/")
     async def get_htmx_validators_column(
-        self, column: str, block_number: int = 0, active_only: bool = True
+        self,
+        request: Request,
+        column: str,
+        block_number: int = 0,
+        active_only: bool = True,
     ) -> Template:
+
+        inspect(request)
+
         # Convert string None to "None None".
         column = None if column == "None" else column
 
@@ -130,6 +140,16 @@ class GovernanceController(Controller):
             block_number=block_number, active_only=active_only
         )
 
+        #        response_headers = None
+        #        if column == "identity":
+        #            validators = [
+        #                IcxValidatorIdentity(address=validator.address, name=validator.name)
+        #                for validator in validators
+        #            ]
+        #            etag = self.generate_etag(str(validators))
+        #
+        #            response_headers = {"ETag": etag}
+
         return Template(
             name=f"governance/htmx/validators_column_{column}.html",
             context={
@@ -137,6 +157,7 @@ class GovernanceController(Controller):
                 "validators": validators,
                 "validator_images": self.get_validator_images(),
             },
+            # headers=response_headers,
         )
 
     @get(path="/htmx/validators/rows/")
