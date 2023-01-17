@@ -39,15 +39,15 @@
                 <!-- Index Header -->
                 <th id="validator-index" class="whitespace-nowrap p-2 text-center">#</th>
                 {% for key, name, swap_freq, enable_sort in [
-                        ("identity", "Name", 30, False),
+                        ("identity", "Name", 3600, False),
                         ("cps", "CPS", 30, False),
-                        ("delegated", "Delegated", 10, True),
-                        ("power", "Power", 10, True),
-                        ("bond_ratio", "Bond", 10, False),
+                        ("delegated", "Delegated", 30, True),
+                        ("power", "Power", 30, True),
+                        ("bond_ratio", "Bond", 30, False),
                         ("productivity", "Productivity", 2, False),
-                        ("daily_reward", "Daily Reward", 10, False),
-                        ("monthly_reward", "Monthly Reward", 10, False),
-                        ("yearly_reward", "Yearly Reward", 10, False)
+                        ("daily_reward", "Daily Reward", 30, False),
+                        ("monthly_reward", "Monthly Reward", 30, False),
+                        ("yearly_reward", "Yearly Reward", 30, False)
                     ]
                 %}
                 <th id="validator-{{ key }}"
@@ -79,7 +79,7 @@
         </thead>
         <tbody class="divide-y-2 divide-gray-800"
             hx-get="/governance/htmx/validators/rows/?block_number={{ block_number }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
-            hx-trigger="every 10s" hx-swap="none" {{ hx_disable }}>
+            hx-trigger="every 60s" hx-swap="none" {{ hx_disable }}>
             {% include "governance/htmx/validators_rows.html" %}
         </tbody>
     </table>
