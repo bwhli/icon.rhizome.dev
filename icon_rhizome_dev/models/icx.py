@@ -97,6 +97,7 @@ class IcxValidator(BaseModel):
     penalty: int
     power: float
     productivity: float = None
+    rank: int = None
     status: int
     total_blocks: int
     validated_blocks: int

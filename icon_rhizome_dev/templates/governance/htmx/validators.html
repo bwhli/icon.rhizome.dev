@@ -9,27 +9,35 @@
 <header
     class="font-robotomono md:flex-row flex flex-col justify-between gap-4 p-4 bg-gray-900 border-2 border-b-0 border-gray-800">
     <h1 class="font-bold">Validators ({{ validators|length }})</h1>
-    <div class="md:items-end flex flex-col gap-2">
-        <button id="block-rewind" class="hover:bg-purple-800 w-fit px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
-            _="on click toggle .hidden on #block-rewind-buttons">REWIND</button>
-        <div id="block-rewind-buttons" class="flex hidden grid-cols-2 gap-2">
-            {% for days, blocks in [(30, 1296000), (14, 2419200), (7, 1209600), (1, 172800)] %}
-            <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
-                hx-get="/governance/htmx/validators/?block_number=-{{ blocks }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
-                hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
+    <div class="flex gap-4">
+        <button id="block-rewind"
+            class="hover:bg-purple-800 w-fit px-2 py-1 text-sm font-bold uppercase bg-purple-700 rounded-md">
+            Show Inactive
+        </button>
+        <div class="md:items-end flex flex-col gap-2">
+            <button id="block-rewind"
+                class="hover:bg-purple-800 w-fit px-2 py-1 text-sm font-bold uppercase bg-purple-700 rounded-md"
+                _="on click toggle .hidden on #block-rewind-buttons">Rewind</button>
+            <div id="block-rewind-buttons" class="flex hidden grid-cols-2 gap-2">
+                {% for days, blocks in [(30, 1296000), (14, 2419200), (7, 1209600), (1, 172800)] %}
+                <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
+                    hx-get="/governance/htmx/validators/?block_number=-{{ blocks }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+                    hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
             on htmx:afterRequest remove @hx-trigger from #validators then
             set #validators-table-container's @hx-disable to 'true' end">
-                {{ days }}d ago
-            </button>
-            {% endfor %}
-            <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
-                hx-get="/governance/htmx/validators/?block_number=0&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
-                hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
+                    {{ days }}d ago
+                </button>
+                {% endfor %}
+                <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
+                    hx-get="/governance/htmx/validators/?block_number=0&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+                    hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
             on htmx:afterRequest set #validators's @hx-trigger to 'load, every 30s'">
-                Now
-            </button>
+                    Now
+                </button>
+            </div>
         </div>
     </div>
+
 </header>
 
 <div id="validators-table-container" class="overflow-x-auto border-2 border-gray-800">

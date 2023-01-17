@@ -38,7 +38,11 @@ class GovernanceController(Controller):
 
         return block_number
 
-    async def get_validators(self, block_number: int = 0):
+    async def get_validators(
+        self,
+        block_number: int = 0,
+        active_only: bool = True,
+    ):
 
         block_number = await self.process_block_number(block_number)
 
@@ -54,7 +58,8 @@ class GovernanceController(Controller):
         i_prep = network_info["rewardFund"]["Iprep"] / 100
 
         # Calculate daily/monthly rewards for validators.
-        for validator in validators:
+        for index, validator in enumerate(validators, start=1):
+            validator.rank = index
             monthly_reward = (validator.power / total_power) * (i_global * i_prep)
             monthly_reward_usd = monthly_reward * icx_usd_price
             daily_reward = (monthly_reward * 12) / 365
@@ -66,6 +71,10 @@ class GovernanceController(Controller):
 
             if validator.address in cps_validators:
                 validator.cps = True
+
+        # If active_only is True, only return validators with a bond greater than 0 ICX.
+        if active_only is True:
+            validators = [validator for validator in validators if validator.bonded > 0]
 
         return validators
 
@@ -111,15 +120,15 @@ class GovernanceController(Controller):
 
     @get(path="/htmx/validators/column/{column:str}/")
     async def get_htmx_validators_column(
-        self,
-        column: str,
-        block_number: int = 0,
+        self, column: str, block_number: int = 0, active_only: bool = True
     ) -> Template:
         # Convert string None to "None None".
         column = None if column == "None" else column
 
         # Fetch validator info.
-        validators = await self.get_validators(block_number)
+        validators = await self.get_validators(
+            block_number=block_number, active_only=active_only
+        )
 
         return Template(
             name=f"governance/htmx/validators_column_{column}.html",
@@ -134,12 +143,15 @@ class GovernanceController(Controller):
     async def get_htmx_validators_row(
         self,
         block_number: int = 0,
+        active_only: bool = True,
         sort_by: str = None,
         sort_dir: str = "asc",
     ) -> Template:
 
         # Fetch validator info.
-        validators = await self.get_validators(block_number)
+        validators = await self.get_validators(
+            block_number=block_number, active_only=active_only
+        )
 
         # Only return column if column is specified.
         return Template(
@@ -158,6 +170,7 @@ class GovernanceController(Controller):
     async def get_htmx_validators(
         self,
         block_number: int = 0,
+        active_only: bool = True,
         sort_by: str = None,
         sort_dir: str = "asc",
         column: str = None,
@@ -170,7 +183,9 @@ class GovernanceController(Controller):
         sort_by = None if sort_by == "None" else sort_by
 
         # Fetch validator info.
-        validators = await self.get_validators(block_number)
+        validators = await self.get_validators(
+            block_number=block_number, active_only=active_only
+        )
 
         # Sort validators by key.
         if sort_by is not None:

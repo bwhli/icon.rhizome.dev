@@ -3,7 +3,7 @@
     {% endif %}>
     <!-- Index Cell -->
     <td id="{{ validator.address }}-index" class="whitespace-nowrap p-2 text-center">
-        {{ loop.index }}
+        {{ validator.rank }}
     </td>
     {% for key in ["identity", "cps", "delegated", "power", "bond_ratio", "productivity", "daily_reward", "monthly_reward", "yearly_reward"] %}
     {% with hx_swap_oob=False %}
