@@ -1,10 +1,14 @@
 import asyncio
 import hashlib
+from functools import lru_cache
 from pathlib import Path
 
 import httpx
 import orjson
-from starlite import Controller, Parameter, Request, Template, get
+from htmlmin.minify import html_minify
+from rich import inspect
+from starlette.responses import HTMLResponse
+from starlite import Controller, MediaType, Parameter, Request, Response, Template, get
 
 from icon_rhizome_dev.constants import BLOCK_TIME, EXA, PROJECT_DIR
 from icon_rhizome_dev.icx_async import IcxAsync
@@ -19,36 +23,24 @@ class GovernanceController(Controller):
 
     path = "/governance"
 
-    @get(path="/")
-    async def get_governance(self, block_number: int = 0) -> Template:
-        """
-        Returns information about all ICON validators.
-        """
-        return Template(
-            name="governance/index.html",
-            context={
-                "title": "Governance",
-                "block_number": block_number,
-            },
-        )
-
-    @get(path="/htmx/validators/", cache=BLOCK_TIME)
-    async def get_htmx_validators(
-        self,
-        block_number: int = 0,
-        sort_by: str = None,
-        sort_dir: str = "asc",
-        column: str = None,
-    ) -> Template:
-
-        # Convert string None to "None None".
-        column = None if column == "None" else column
-        sort_by = None if sort_by == "None" else sort_by
+    async def process_block_number(self, block_number: int = 0):
+        # Historical querying is not supported before this block.
+        MIN_BLOCK_NUMBER = 44000000
 
         # If block number is negative, get current block and substract absolute value of "block_number" from it.
         if block_number < 0:
             last_block_number = await IcxAsync.get_last_block(height_only=True)
             block_number = last_block_number - abs(block_number)
+
+        if block_number < MIN_BLOCK_NUMBER:
+            last_block_number = await IcxAsync.get_last_block(height_only=True)
+            block_number = last_block_number
+
+        return block_number
+
+    async def get_validators(self, block_number: int = 0):
+
+        block_number = await self.process_block_number(block_number)
 
         network_info, icx_usd_price, validators, cps_validators = await asyncio.gather(
             IcxAsync.get_network_info(block_number=block_number),
@@ -75,6 +67,111 @@ class GovernanceController(Controller):
             if validator.address in cps_validators:
                 validator.cps = True
 
+        return validators
+
+    @lru_cache(maxsize=1)
+    def get_validator_images(self):
+        validator_images = [
+            image.name
+            for image in Path(f"{PROJECT_DIR}/static/images/validators").glob("*.png")
+        ]
+        return validator_images
+
+    @get(path="/")
+    async def get_governance(self, block_number: int = 0) -> Template:
+        """
+        Returns information about all ICON validators.
+        """
+        return Template(
+            name="governance/index.html",
+            context={
+                "title": "Governance",
+                "block_number": block_number,
+            },
+        )
+
+    ###############
+    # HTMX Routes #
+    ###############
+
+    @get(path="/htmx/overview/")
+    async def get_governance_htmx_overview(
+        self,
+        block_number: int = 0,
+    ) -> Template:
+        block_number = await self.process_block_number(block_number)
+        network_info = await IcxAsync.get_network_info(block_number)
+        return Template(
+            name=f"governance/htmx/overview.html",
+            context={
+                "block_number": block_number,
+                "network_info": network_info,
+            },
+        )
+
+    @get(path="/htmx/validators/column/{column:str}/")
+    async def get_htmx_validators_column(
+        self,
+        column: str,
+        block_number: int = 0,
+    ) -> Template:
+        # Convert string None to "None None".
+        column = None if column == "None" else column
+
+        # Fetch validator info.
+        validators = await self.get_validators(block_number)
+
+        return Template(
+            name=f"governance/htmx/validators_column_{column}.html",
+            context={
+                "block_number": block_number,
+                "validators": validators,
+                "validator_images": self.get_validator_images(),
+            },
+        )
+
+    @get(path="/htmx/validators/rows/")
+    async def get_htmx_validators_row(
+        self,
+        block_number: int = 0,
+        sort_by: str = None,
+        sort_dir: str = "asc",
+    ) -> Template:
+
+        # Fetch validator info.
+        validators = await self.get_validators(block_number)
+
+        # Only return column if column is specified.
+        return Template(
+            name=f"governance/htmx/validators_rows.html",
+            context={
+                "block_number": block_number,
+                "validators": validators,
+                "validator_images": self.get_validator_images(),
+                "sort_by": sort_by,
+                "sort_dir": sort_dir,
+                "hx_swap_oob": True,
+            },
+        )
+
+    @get(path="/htmx/validators/")
+    async def get_htmx_validators(
+        self,
+        block_number: int = 0,
+        sort_by: str = None,
+        sort_dir: str = "asc",
+        column: str = None,
+        rows: str = None,
+    ) -> Template:
+
+        # Convert string None to "None None".
+        column = None if column == "None" else column
+        rows = None if rows == "None" else rows
+        sort_by = None if sort_by == "None" else sort_by
+
+        # Fetch validator info.
+        validators = await self.get_validators(block_number)
+
         # Sort validators by key.
         if sort_by is not None:
             validators = sorted(
@@ -83,32 +180,15 @@ class GovernanceController(Controller):
                 reverse=True if sort_dir == "desc" else False,
             )
 
-        # Get a list of validator images that are in the repo.
-        validator_images = [
-            image.name
-            for image in Path(f"{PROJECT_DIR}/static/images/validators").glob("*.png")
-        ]
-
-        # Build template context.
-        context = {
-            "block_number": block_number,
-            "validators": validators,
-            "icx_usd_price": icx_usd_price,
-            "validator_images": validator_images,
-            "sort_by": sort_by,
-            "sort_dir": sort_dir,
-        }
-
-        # Only return column if column is specified.
-        if column is not None:
-            return Template(
-                name=f"governance/htmx/validators_column_{column}.html",
-                context=context,
-            )
-
         return Template(
             name="governance/htmx/validators.html",
-            context=context,
+            context={
+                "block_number": block_number,
+                "validators": validators,
+                "validator_images": self.get_validator_images(),
+                "sort_by": sort_by,
+                "sort_dir": sort_dir,
+            },
         )
 
     @get(path="/htmx/node-status-check-modal/")

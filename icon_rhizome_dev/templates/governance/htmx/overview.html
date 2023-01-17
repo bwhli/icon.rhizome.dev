@@ -1,0 +1,76 @@
+<div class="font-robotomono xl:gap-4 flex gap-2 overflow-x-auto">
+    <div class="shrink-0 grow xl:gap-4 grid grid-cols-2 gap-2">
+        {% for name, data in [
+                ( "Staked ICX", format_number(network_info.totalStake / 10**18, decimal_places=0) + " ICX" ),
+                ( "Delegated ICX", format_number(network_info.totalDelegated / 10**18, decimal_places=0) + " ICX" ),
+                ( "Bonded ICX", format_number(network_info.totalBonded / 10**18, decimal_places=0) + " ICX" ),
+                ( "Power", format_number(network_info.totalPower / 10**18, decimal_places=0) + " ICX" ),
+            ]
+        %}
+        <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
+            <header class="">
+                <h2 class="whitespace-nowrap text-sm font-bold text-gray-400">{{ name|upper }}</h2>
+                <p class="whitespace-nowrap xl:text-2xl text-xl">{{ data }}</p>
+            </header>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="shrink-0 grow xl:gap-4 grid grid-cols-1 gap-2">
+        {% for name, data in [
+                ( "Main Validators", network_info.mainPRepCount + network_info.extraMainPRepCount ),
+                ( "Sub Validators", network_info.preps - network_info.mainPRepCount + network_info.extraMainPRepCount )
+            ]
+        %}
+        <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
+            <header>
+                <h2 class="whitespace-nowrap text-sm font-bold text-gray-400">{{ name|upper }}</h2>
+                <p class="whitespace-nowrap xl:text-2xl text-xl">{{ data }}</p>
+            </header>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="shrink-0 grow xl:gap-4 grid grid-cols-1 gap-2">
+        {% for name, data in [
+                ( "Bond Req.", network_info.bondRequirement|string + "%" ),
+                ( "I_rep", format_number(network_info.irep / 10**18) )
+            ]
+        %}
+        <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
+            <header>
+                <h2 class="whitespace-nowrap text-sm font-bold text-gray-400">{{ name|upper }}</h2>
+                <p class="whitespace-nowrap xl:text-2xl text-xl">{{ data }}</p>
+            </header>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="shrink-0 grow xl:gap-4 grid grid-cols-1 gap-2">
+        {% for name, data in [
+                ( "I_global", format_number(network_info.rewardFund.Iglobal / 10**18) + " ICX" ),
+            ]
+        %}
+        <div class="p-4 bg-gray-900 border-2 border-gray-800">
+            <header>
+                <h2 class="whitespace-nowrap text-sm font-bold text-gray-400">{{ name|upper }}</h2>
+                <p class="whitespace-nowrap xl:text-2xl text-xl">{{ data }}</p>
+            </header>
+        </div>
+        {% endfor %}
+
+        <div class="grow xl:gap-4 flex gap-2">
+            {% for name, data in [
+                    ( "I_cps", format_number(network_info.rewardFund.Icps) + "%" ),
+                    ( "I_prep", format_number(network_info.rewardFund.Iprep) + "%" ),
+                    ( "I_relay", format_number(network_info.rewardFund.Irelay) + "%" ),
+                    ( "I_voter", format_number(network_info.rewardFund.Ivoter) + "%" ),
+                ]
+            %}
+            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
+                <header>
+                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400">{{ name|upper }}</h2>
+                    <p class="whitespace-nowrap xl:text-2xl text-xl">{{ data }}</p>
+                </header>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

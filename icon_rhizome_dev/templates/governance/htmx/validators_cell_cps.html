@@ -1,7 +1,7 @@
-<td id="{{ validator.address }}-cps" class="whitespace-nowrap px-3 py-2 text-center"
-    {% if hx_swap_oob %}hx-swap-oob="true" {% endif %}>
+<td id="{{ validator.address }}-cps" class="whitespace-nowrap p-2 text-center" {% if hx_swap_oob %}hx-swap-oob="true"
+    {% endif %}>
     {% if validator.cps == True %}
-    <p class=" text-green-500 uppercase">Yes</p>
+    <p class="text-green-500 uppercase">Yes</p>
     {% else %}
     <p class="text-red-500 uppercase">No</p>
     {% endif %}

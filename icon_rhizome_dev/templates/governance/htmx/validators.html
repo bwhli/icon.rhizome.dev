@@ -1,23 +1,34 @@
 {% import "partials/macros/icx_address.html" as icx_address %}
 
-<header class="font-robotomono flex justify-between p-4 bg-gray-900 border-2 border-b-0 border-gray-800">
-    <h1 class="font-bold">Validators</h1>
-    <div id="block-rewind-buttons" class="flex gap-2">
-        {% for days, blocks in [(30, 1296000), (14, 2419200), (7, 1209600), (1, 172800)] %}
-        <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
-            hx-get="/governance/htmx/validators/?block_number=-{{ blocks }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
-            hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
+{%- if block_number == 0 -%}
+{%- set hx_disable = '' -%}
+{%- else -%}
+{%- set hx_disable = 'hx-disable="true"' -%}
+{%- endif -%}
+
+<header
+    class="font-robotomono md:flex-row flex flex-col justify-between gap-4 p-4 bg-gray-900 border-2 border-b-0 border-gray-800">
+    <h1 class="font-bold">Validators ({{ validators|length }})</h1>
+    <div class="md:items-end flex flex-col gap-2">
+        <button id="block-rewind" class="hover:bg-purple-800 w-fit px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
+            _="on click toggle .hidden on #block-rewind-buttons">REWIND</button>
+        <div id="block-rewind-buttons" class="flex hidden grid-cols-2 gap-2">
+            {% for days, blocks in [(30, 1296000), (14, 2419200), (7, 1209600), (1, 172800)] %}
+            <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
+                hx-get="/governance/htmx/validators/?block_number=-{{ blocks }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+                hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
             on htmx:afterRequest remove @hx-trigger from #validators then
             set #validators-table-container's @hx-disable to 'true' end">
-            {{ days }}d ago
-        </button>
-        {% endfor %}
-        <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
-            hx-get="/governance/htmx/validators/?block_number=0&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
-            hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
+                {{ days }}d ago
+            </button>
+            {% endfor %}
+            <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
+                hx-get="/governance/htmx/validators/?block_number=0&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+                hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
             on htmx:afterRequest set #validators's @hx-trigger to 'load, every 30s'">
-            Now
-        </button>
+                Now
+            </button>
+        </div>
     </div>
 </header>
 
@@ -26,28 +37,33 @@
         <thead>
             <tr class="text-left bg-gray-900 divide-x-2 divide-gray-800">
                 <!-- Index Header -->
-                <th id="validator-index" class="whitespace-nowrap px-3 py-2 text-center">#</th>
-                <!-- Identity Header -->
-                <th id="validator-bond" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=identity"
-                    hx-trigger="load once, every 3600s" hx-swap="none">Name</th>
-                <!-- CPS Header -->
-                <th id="validator-cps" class="whitespace-nowrap px-3 py-2 text-center"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=cps"
-                    hx-trigger="load once, every 30s" hx-swap="none">CPS</th>
-                <!-- Delegated Header -->
-                <th id="validator-delegated" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=delegated"
-                    hx-trigger="load once, every 30s" hx-swap="none">
-                    <div class="flex justify-between">
-                        <p>Delegated</p>
+                <th id="validator-index" class="whitespace-nowrap p-2 text-center">#</th>
+                {% for key, name, swap_freq, enable_sort in [
+                        ("identity", "Name", 30, False),
+                        ("cps", "CPS", 30, False),
+                        ("delegated", "Delegated", 10, True),
+                        ("power", "Power", 10, True),
+                        ("bond_ratio", "Bond", 10, False),
+                        ("productivity", "Productivity", 2, False),
+                        ("daily_reward", "Daily Reward", 10, False),
+                        ("monthly_reward", "Monthly Reward", 10, False),
+                        ("yearly_reward", "Yearly Reward", 10, False)
+                    ]
+                %}
+                <th id="validator-{{ key }}"
+                    class="whitespace-nowrap {% if key == 'cps' %}p-2{% else %}px-3 py-2{% endif %}"
+                    hx-get="/governance/htmx/validators/column/{{ key }}/?block_number={{ block_number }}"
+                    hx-trigger="every {{ swap_freq }}s" hx-swap="none" {{ hx_disable }}>
+                    <div class="flex {% if key == 'cps' %}justify-center{% else %}justify-between{% endif %}">
+                        <p>{{ name }}</p>
+                        {% if enable_sort %}
                         {% if sort_dir == "asc" %}
                         {% set reverse_sort_dir = "desc" %}
                         {% elif sort_dir == "desc" %}
                         {% set reverse_sort_dir = "asc" %}
                         {% endif %}
                         <button
-                            hx-get="/governance/htmx/validators/?block_number={{ block_number }}&sort_by=delegated&sort_dir={{ reverse_sort_dir }}"
+                            hx-get="/governance/htmx/validators/?block_number={{ block_number }}&sort_by={{ key }}&sort_dir={{ reverse_sort_dir }}"
                             hx-trigger="click" hx-target="#validators" hx-swap="innerHTML" hx-sync="this:replace">
                             <svg xmlns=" http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="w-5 h-5">
@@ -55,70 +71,16 @@
                                     d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                             </svg>
                         </button>
-                    </div>
-                </th>
-                <!-- Power Header -->
-                <th id="validator-power" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=power"
-                    hx-trigger="load once, every 30s" hx-swap="none">
-                    <div class="flex justify-between">
-                        <p>Power</p>
-                        {% if sort_dir == "asc" %}
-                        {% set reverse_sort_dir = "desc" %}
-                        {% elif sort_dir == "desc" %}
-                        {% set reverse_sort_dir = "asc" %}
                         {% endif %}
-                        <button
-                            hx-get="/governance/htmx/validators/?block_number={{ block_number }}&sort_by=power&sort_dir={{ reverse_sort_dir }}"
-                            hx-trigger="click" hx-target="#validators" hx-swap="innerHTML" hx-sync="this:replace">
-                            <svg xmlns=" http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                            </svg>
-                        </button>
                     </div>
                 </th>
-                <!-- Bond Header -->
-                <th id="validator-bond" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=bond_ratio"
-                    hx-trigger="load once, every 30s" hx-swap="none">Bond</th>
-                <!-- Productivity Header -->
-                <th id="validator-productivity" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=productivity"
-                    hx-trigger="load once, every 2s" hx-swap="none">Productivity</th>
-                <!-- Daily Reward Header -->
-                <th id="validator-daily-reward" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=daily_reward"
-                    hx-trigger="load once, every 30s" hx-swap="none">Daily Reward
-                </th>
-                <!-- Monthly Reward Header -->
-                <th id="validator-daily-reward" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=monthly_reward"
-                    hx-trigger="load once, every 30s" hx-swap="none">Monthly Reward
-                </th>
-                <!-- Yearly Reward Header -->
-                <th id="validator-daily-reward" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/?block_number={{ block_number }}&column=yearly_reward"
-                    hx-trigger="load once, every 30s" hx-swap="none">Yearly Reward
-                </th>
-
-            </tr>
-        </thead>
-        <tbody class="divide-y-2 divide-gray-800">
-            {% for validator in validators %}
-            <tr class="text-left divide-x-2 divide-gray-800">
-                <!-- Index Cell -->
-                <td id="{{ validator.address }}-index" class="whitespace-nowrap px-3 py-2 text-center">
-                    {{ loop.index }}
-                </td>
-                {% for key in ["identity", "cps", "delegated", "power", "bond_ratio", "productivity", "daily_reward", "monthly_reward", "yearly_reward"]%}
-                {% with hx_swap_oob=False %}
-                {% include "governance/htmx/validators_cell_" + key + ".html" %}
-                {% endwith %}
                 {% endfor %}
             </tr>
-            {% endfor %}
+        </thead>
+        <tbody class="divide-y-2 divide-gray-800"
+            hx-get="/governance/htmx/validators/rows/?block_number={{ block_number }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+            hx-trigger="every 10s" hx-swap="none" {{ hx_disable }}>
+            {% include "governance/htmx/validators_rows.html" %}
         </tbody>
     </table>
 </div>

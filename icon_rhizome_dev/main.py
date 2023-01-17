@@ -1,9 +1,13 @@
 import os
 from datetime import datetime
 
+from htmlmin.minify import html_minify
+from starlette.responses import HTMLResponse
 from starlite import (
+    AllowedHostsConfig,
     CacheConfig,
     Request,
+    Response,
     Starlite,
     StaticFilesConfig,
     Template,
@@ -14,6 +18,7 @@ from starlite.cache.redis_cache_backend import (
     RedisCacheBackend,
     RedisCacheBackendConfig,
 )
+from starlite.config import CompressionConfig
 from starlite.contrib.jinja import JinjaTemplateEngine
 
 from icon_rhizome_dev import ENV
@@ -47,15 +52,22 @@ template_config.engine_instance.engine.globals["format_percentage"] = Utils.form
 
 @get("/", cache=2)
 def home_handler(request: Request) -> Template:
-    validators = Icx.get_validators()
-    return Template(
+    response = Template(
         name="index.html",
-        context={"validators": validators, "fmt": Utils.fmt},
+        context={},
     )
+    return response
 
 
 # Initialize Starlite app.
 app = Starlite(
+    allowed_hosts=AllowedHostsConfig(
+        allowed_hosts=[
+            "localhost",
+            "icon.rhizome.dev",
+        ],
+    ),
+    compression_config=CompressionConfig(backend="brotli", brotli_gzip_fallback=True),
     route_handlers=[
         AddressController,
         GovernanceController,

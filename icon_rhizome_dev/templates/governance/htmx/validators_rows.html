@@ -1,0 +1,14 @@
+{% for validator in validators %}
+<tr id="validator-{{ loop.index }}" class="text-left divide-x-2 divide-gray-800" {% if hx_swap_oob %}hx-swap-oob="true"
+    {% endif %}>
+    <!-- Index Cell -->
+    <td id="{{ validator.address }}-index" class="whitespace-nowrap p-2 text-center">
+        {{ loop.index }}
+    </td>
+    {% for key in ["identity", "cps", "delegated", "power", "bond_ratio", "productivity", "daily_reward", "monthly_reward", "yearly_reward"] %}
+    {% with hx_swap_oob=False %}
+    {% include "governance/htmx/validators_cell_" + key + ".html" %}
+    {% endwith %}
+    {% endfor %}
+</tr>
+{% endfor %}
