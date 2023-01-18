@@ -15,7 +15,8 @@
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         {% block head_meta %}{% endblock %}
-        <script src="https://unpkg.com/htmx.org@1.8.4"></script>
+        <script src="https://unpkg.com/htmx.org@1.8.5"></script>
+        <script src="https://unpkg.com/htmx.org@1.8.5/dist/ext/sse.js"></script>
         <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
         <link rel="stylesheet" href="/static/css/style.css?{{ NOW }}">
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,28 +26,32 @@
     </head>
 
     <body class="flex flex-col min-h-screen subpixel-antialiased text-gray-100 bg-black">
-        <header class="flex items-center justify-between p-4">
-            <h1 class="font-bold text-3xl">
+        <header class=" flex items-center justify-between p-4">
+            <h1 class="text-3xl font-bold">
                 <a href="/" class="hover:underline hover:text-cyan-500">RHIZOME</a>
             </h1>
             <nav>
                 <ul class="flex gap-4">
                     <li>
-                        <a href="/tools/" class="text-lg font-semibold hover:underline hover:text-cyan-500">
+                        <a href="/tools/" class="hover:underline hover:text-cyan-500 text-lg font-semibold">
                             Tools
                         </a>
                     </li>
                     <li>
-                        <a href="/governance/" class="text-lg font-semibold hover:underline hover:text-cyan-500">
+                        <a href="/governance/" class="hover:underline hover:text-cyan-500 text-lg font-semibold">
                             Governance
                         </a>
                     </li>
                 </ul>
             </nav>
         </header>
-        <main class="flex flex-col flex-1 w-full gap-3 p-3 overflow-y-auto items-center">
+        <main class="flex flex-col items-center flex-1 w-full gap-3 p-3 overflow-y-auto">
             {% block container %}{% endblock %}
         </main>
+        <footer class="md:flex-row md:justify-between flex flex-col items-center gap-2 p-4">
+            <p class="font-robotomono text-sm text-gray-400">© {{ YEAR }} RHIZOME Labs, LLC</p>
+            <p id="block-height" class="font-robotomono text-sm text-gray-400"></p>
+        </footer>
     </body>
 
 </html>

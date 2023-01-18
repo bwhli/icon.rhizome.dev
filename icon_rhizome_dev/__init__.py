@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 def load_env():
     load_dotenv()
     return {
+        "ABLY_PUBLISH_KEY": os.getenv("ABLY_PUBLISH_KEY"),
         "AWS_ACCESS_KEY": os.getenv("AWS_ACCESS_KEY"),
         "AWS_SECRET_KEY": os.getenv("AWS_SECRET_KEY"),
         "ICON_API_ENDPOINT": os.getenv("ICON_API_ENDPOINT"),

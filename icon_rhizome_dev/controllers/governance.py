@@ -2,13 +2,26 @@ import asyncio
 import hashlib
 from functools import lru_cache
 from pathlib import Path
+from random import randint
 from typing import Any
 
 from htmlmin.minify import html_minify
 from rich import inspect
 from starlette.responses import HTMLResponse
-from starlite import Controller, MediaType, Parameter, Request, Response, Template, get
+from starlite import (
+    Controller,
+    MediaType,
+    Parameter,
+    Request,
+    Response,
+    Template,
+    WebSocket,
+    WebsocketRouteHandler,
+    get,
+    websocket,
+)
 from starlite.datastructures import ResponseHeader
+from starlite.exceptions import WebSocketDisconnect
 
 from icon_rhizome_dev.constants import BLOCK_TIME, EXA, PROJECT_DIR
 from icon_rhizome_dev.icx_async import IcxAsync
@@ -76,8 +89,8 @@ class GovernanceController(Controller):
                 validator.cps = True
 
         # If active_only is True, only return validators with a bond greater than 0 ICX.
-        if active_only is True:
-            validators = [validator for validator in validators if validator.bonded > 0]
+        # if active_only is True:
+        #    validators = [validator for validator in validators if validator.bonded > 0]
 
         return validators
 
@@ -129,8 +142,6 @@ class GovernanceController(Controller):
         block_number: int = 0,
         active_only: bool = True,
     ) -> Template:
-
-        inspect(request)
 
         # Convert string None to "None None".
         column = None if column == "None" else column

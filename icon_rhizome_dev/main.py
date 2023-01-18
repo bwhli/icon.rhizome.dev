@@ -1,13 +1,9 @@
-import os
 from datetime import datetime
 
-from htmlmin.minify import html_minify
-from starlette.responses import HTMLResponse
 from starlite import (
     AllowedHostsConfig,
     CacheConfig,
     Request,
-    Response,
     Starlite,
     StaticFilesConfig,
     Template,
@@ -22,12 +18,12 @@ from starlite.config import CompressionConfig
 from starlite.contrib.jinja import JinjaTemplateEngine
 
 from icon_rhizome_dev import ENV
-from icon_rhizome_dev.constants import BLOCK_TIME, PROJECT_DIR
+from icon_rhizome_dev.constants import BLOCK_TIME, NOW, PROJECT_DIR, YEAR
 from icon_rhizome_dev.controllers.address import AddressController
 from icon_rhizome_dev.controllers.governance import GovernanceController
 from icon_rhizome_dev.controllers.tools import ToolsController
 from icon_rhizome_dev.controllers.transaction import TransactionController
-from icon_rhizome_dev.icx import Icx
+from icon_rhizome_dev.controllers.ws import WebSocketController
 from icon_rhizome_dev.utils import Utils
 
 # Configure Redis cache settings.
@@ -44,7 +40,8 @@ template_config = TemplateConfig(
     engine=JinjaTemplateEngine,
 )
 template_config.engine_instance.engine.globals["BLOCK_TIME"] = BLOCK_TIME
-template_config.engine_instance.engine.globals["NOW"] = int(datetime.now().timestamp())
+template_config.engine_instance.engine.globals["NOW"] = int(NOW.timestamp())  # fmt: skip
+template_config.engine_instance.engine.globals["YEAR"] = YEAR
 
 template_config.engine_instance.engine.globals["format_number"] = Utils.format_number
 template_config.engine_instance.engine.globals["format_percentage"] = Utils.format_percentage  # fmt: skip
@@ -74,6 +71,7 @@ app = Starlite(
         GovernanceController,
         ToolsController,
         TransactionController,
+        WebSocketController,
         home_handler,
     ],
     static_files_config=[
