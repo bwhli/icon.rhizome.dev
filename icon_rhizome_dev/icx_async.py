@@ -22,6 +22,21 @@ class IcxAsync(Icx):
         return result
 
     @classmethod
+    async def get_delegation(
+        cls,
+        address: str,
+        block_number: int = 0,
+    ):
+        params = {"address": address}
+        result = await cls.call(
+            cls.CHAIN_CONTRACT,
+            "getDelegation",
+            params,
+            block_number=block_number,
+        )
+        return result
+
+    @classmethod
     async def get_cps_validator_addresses(cls, block_number: int = 0):
         result = await cls.call(
             "cx9f4ab72f854d3ccdc59aa6f2c3e2215dd62e879f",

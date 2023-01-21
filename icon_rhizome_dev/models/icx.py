@@ -11,7 +11,7 @@ from icon_rhizome_dev.utils import Utils
 class IcxAddress(BaseModel):
     address: str
     audit_tx_hash: str
-    balance: Decimal
+    balance: int
     code_hash: str
     contract_type: str
     contract_updated_block: int
@@ -31,6 +31,11 @@ class IcxAddress(BaseModel):
     transaction_count: int
     transaction_internal_count: int
     type: str
+
+
+class IcxDelegation(BaseModel):
+    amount: float
+    validator_address: str
 
 
 class IcxTransaction(BaseModel):

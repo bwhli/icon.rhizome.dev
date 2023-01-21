@@ -39,10 +39,14 @@ template_config = TemplateConfig(
     directory=f"{PROJECT_DIR}/templates",
     engine=JinjaTemplateEngine,
 )
+
+# Global template variables.
 template_config.engine_instance.engine.globals["BLOCK_TIME"] = BLOCK_TIME
+template_config.engine_instance.engine.globals["BLOCKS_1D"] = 172800
 template_config.engine_instance.engine.globals["NOW"] = int(NOW.timestamp())  # fmt: skip
 template_config.engine_instance.engine.globals["YEAR"] = YEAR
 
+# Global template functions.
 template_config.engine_instance.engine.globals["format_number"] = Utils.format_number
 template_config.engine_instance.engine.globals["format_percentage"] = Utils.format_percentage  # fmt: skip
 

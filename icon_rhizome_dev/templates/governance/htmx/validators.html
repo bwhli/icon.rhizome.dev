@@ -19,7 +19,7 @@
                 class="hover:bg-purple-800 w-fit px-2 py-1 text-sm font-bold uppercase bg-purple-700 rounded-md"
                 _="on click toggle .hidden on #block-rewind-buttons">Rewind</button>
             <div id="block-rewind-buttons" class="flex hidden grid-cols-2 gap-2">
-                {% for days, blocks in [(30, 1296000), (14, 2419200), (7, 1209600), (1, 172800)] %}
+                {% for days, blocks in [(60, BLOCKS_1D * 60), (30, BLOCKS_1D * 30), (14, BLOCKS_1D * 14), (7, BLOCKS_1D * 7), (1, BLOCKS_1D * 1)] %}
                 <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
                     hx-get="/governance/htmx/validators/?block_number=-{{ blocks }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
                     hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
@@ -56,6 +56,7 @@
                         ("daily_reward", "Daily Reward", 30, False),
                         ("monthly_reward", "Monthly Reward", 30, False),
                         ("yearly_reward", "Yearly Reward", 30, False)
+
                     ]
                 %}
                 <th id="validator-{{ key }}"

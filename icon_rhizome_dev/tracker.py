@@ -4,9 +4,8 @@ import orjson
 
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http_client import HttpClient
-from icon_rhizome_dev.icx import Icx
-from icon_rhizome_dev.models.governance import Validator
-from icon_rhizome_dev.models.icx import IcxAddress, IcxTransaction
+from icon_rhizome_dev.models.icx import IcxTransaction
+from icon_rhizome_dev.models.tracker import TrackerAddress
 from icon_rhizome_dev.redis_client import RedisClient
 
 
@@ -27,8 +26,10 @@ class Tracker:
         Args:
             address: An ICX address.
         """
-        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}")  # fmt: skip
-        return response
+        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/addresses/details/{address}")  # fmt: skip
+        data = response.json()
+        address_details = TrackerAddress(**data)
+        return address_details
 
     @staticmethod
     async def get_address_tokens(address: str) -> list:

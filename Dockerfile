@@ -1,4 +1,4 @@
-FROM python:3.11.0
+FROM python:3.11-slim
 
 # Create working directory
 WORKDIR /code
