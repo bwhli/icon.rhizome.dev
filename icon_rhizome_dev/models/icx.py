@@ -42,6 +42,13 @@ class IcxDelegation(BaseModel):
         return values
 
 
+class IcxTokenBalance(BaseModel):
+    address: str
+    amount: float
+    token_contract: str
+    token_ticker: str
+
+
 class IcxTransaction(BaseModel):
     block_number: int
     block_timestamp: int

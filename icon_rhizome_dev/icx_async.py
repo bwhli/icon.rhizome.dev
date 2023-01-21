@@ -108,6 +108,22 @@ class IcxAsync(Icx):
         return result
 
     @classmethod
+    async def get_token_balance(
+        cls,
+        address: str,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> int:
+        params = {"_owner": address}
+        result = await IcxAsync.call(
+            token_contract,
+            "balanceOf",
+            params,
+            block_number=block_number,
+        )
+        return Utils.hex_to_int(result)
+
+    @classmethod
     async def get_validator(
         cls,
         address: str,

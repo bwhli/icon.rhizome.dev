@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block container %}
-<div id="container" class="flex flex-col max-w-5xl gap-8">
+<div id="container" class="flex flex-col w-full max-w-5xl gap-8">
     <header class="flex flex-col gap-4">
         <h1 class="text-5xl font-bold">Address</h1>
-        <h2 class="font-mono text-2xl font-bold">{{ address }}</h2>
+        <h2 class="font-mono text-2xl font-bold">{{ data.address }}</h2>
     </header>
 
     <div class="flex flex-col gap-4">
@@ -14,105 +14,31 @@
                 <header>
                     <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Balance</h2>
                     <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(balance, decimal_places=4) }} ICX</p>
+                        {{ format_number(data.balance, decimal_places=4) }} ICX</p>
                 </header>
             </div>
             <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
                 <header>
                     <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Transactions</h2>
                     <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.transaction_count) }}</p>
+                        {{ format_number(data.address_details.transaction_count) }}</p>
                 </header>
             </div>
             <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
                 <header>
                     <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Token Transfers</h2>
                     <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.token_transfer_count) }}</p>
+                        {{ format_number(data.address_details.token_transfer_count) }}</p>
                 </header>
             </div>
         </div>
     </div>
 
     <div class="flex flex-col gap-4">
-        <h2 class="text-4xl font-bold">Delegations ({{ delegations|length }})</h2>
-        <div class="grid grid-cols-3 gap-4">
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Balance</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.balance, decimal_places=4) }} ICX</p>
-                </header>
-            </div>
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Transactions</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.transaction_count) }}</p>
-                </header>
-            </div>
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Token Transfers</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.token_transfer_count) }}</p>
-                </header>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex flex-col gap-4">
-        <h2 class="text-4xl font-bold">DeFi</h2>
-        <div class="grid grid-cols-3 gap-4">
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Balance</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.balance, decimal_places=4) }} ICX</p>
-                </header>
-            </div>
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Transactions</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.transaction_count) }}</p>
-                </header>
-            </div>
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Token Transfers</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.token_transfer_count) }}</p>
-                </header>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex flex-col gap-4">
-        <h2 class="text-4xl font-bold">NFTs</h2>
-        <div class="grid grid-cols-3 gap-4">
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Balance</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.balance, decimal_places=4) }} ICX</p>
-                </header>
-            </div>
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Transactions</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.transaction_count) }}</p>
-                </header>
-            </div>
-            <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
-                <header>
-                    <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Token Transfers</h2>
-                    <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.token_transfer_count) }}</p>
-                </header>
-            </div>
-        </div>
+        <h2 class="text-4xl font-bold">Tokens</h2>
+        {% for token_balance in data.token_balances %}
+        {{ token_balance }}
+        {% endfor %}
     </div>
 
     {{ address_details }}
