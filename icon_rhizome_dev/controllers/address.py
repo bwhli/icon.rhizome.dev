@@ -22,8 +22,9 @@ class AddressController(Controller):
 
     @get(path="/{address:str}/")
     async def get_address(self, address: str, block_number: int = 0) -> Template:
-        address_details, delegations = await asyncio.gather(
+        address_details, balance, delegations = await asyncio.gather(
             Tracker.get_address_details(address),
+            IcxAsync.get_balance(address, in_icx=True),
             IcxAsync.get_delegation(address, block_number=block_number),
         )
         return Template(
@@ -31,6 +32,7 @@ class AddressController(Controller):
             context={
                 "address": address,
                 "address_details": address_details,
+                "balance": balance,
                 "delegations": delegations,
                 "title": f"{address[:6]}...{address[-6:]}",
             },

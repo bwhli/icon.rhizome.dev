@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 import orjson
 from pydantic import BaseModel, root_validator, validator
 
@@ -36,6 +34,12 @@ class IcxAddress(BaseModel):
 class IcxDelegation(BaseModel):
     amount: float
     validator_address: str
+    validator_name: str = None
+
+    @root_validator(pre=True)
+    def root_validator(cls, values):
+        values["amount"] = Utils.hex_to_int(values["amount"]) / 10**EXA
+        return values
 
 
 class IcxTransaction(BaseModel):

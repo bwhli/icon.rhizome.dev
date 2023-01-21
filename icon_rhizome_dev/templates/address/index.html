@@ -14,7 +14,7 @@
                 <header>
                     <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Balance</h2>
                     <p class="whitespace-nowrap xl:text-2xl text-xl">
-                        {{ format_number(address_details.balance, decimal_places=4) }} ICX</p>
+                        {{ format_number(balance, decimal_places=4) }} ICX</p>
                 </header>
             </div>
             <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
@@ -35,7 +35,7 @@
     </div>
 
     <div class="flex flex-col gap-4">
-        <h2 class="text-4xl font-bold">Delegations</h2>
+        <h2 class="text-4xl font-bold">Delegations ({{ delegations|length }})</h2>
         <div class="grid grid-cols-3 gap-4">
             <div class="grow p-4 bg-gray-900 border-2 border-gray-800">
                 <header>

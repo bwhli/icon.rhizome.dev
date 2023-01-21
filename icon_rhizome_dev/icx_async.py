@@ -1,10 +1,12 @@
 import asyncio
 
 import httpx
+from httpx._exceptions import HTTPStatusError
 
-from icon_rhizome_dev.exceptions import OfflineNodeException
+from icon_rhizome_dev.constants import EXA
+from icon_rhizome_dev.exceptions import FailedIcxCallException, OfflineNodeException
 from icon_rhizome_dev.icx import Icx
-from icon_rhizome_dev.models.icx import IcxValidator
+from icon_rhizome_dev.models.icx import IcxDelegation, IcxValidator
 from icon_rhizome_dev.redis_client import RedisClient
 from icon_rhizome_dev.utils import Utils
 
@@ -12,6 +14,30 @@ from icon_rhizome_dev.utils import Utils
 class IcxAsync(Icx):
     def __init__(self) -> None:
         pass
+
+    @classmethod
+    async def get_balance(
+        cls,
+        address: str,
+        in_icx=True,
+        block_number: int = 0,
+    ) -> int | float:
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1234,
+            "method": "icx_getBalance",
+            "params": {
+                "address": address,
+            },
+        }
+        # Add height param to payload if height is provided.
+        if block_number != 0:
+            payload["params"]["height"] = Utils.int_to_hex(block_number)
+        result = await cls._make_api_request(payload)
+        balance = Utils.hex_to_int(result)
+        if in_icx is True:
+            balance = balance / 10**EXA
+        return balance
 
     @classmethod
     async def get_last_block(cls, height_only=False):
@@ -34,7 +60,15 @@ class IcxAsync(Icx):
             params,
             block_number=block_number,
         )
-        return result
+        delegations = [
+            IcxDelegation(
+                amount=delegation["value"],
+                validator_address=delegation["address"],
+                validator_name=await cls.get_validator_name(delegation["address"]),
+            )
+            for delegation in result["delegations"]
+        ]
+        return delegations
 
     @classmethod
     async def get_cps_validator_addresses(cls, block_number: int = 0):
@@ -72,6 +106,28 @@ class IcxAsync(Icx):
             if isinstance(v, str):
                 result["rewardFund"][k] = Utils.hex_to_int(v)
         return result
+
+    @classmethod
+    async def get_validator(
+        cls,
+        address: str,
+        block_number: int = 0,
+    ) -> IcxValidator:
+        params = {"address": address}
+        result = await cls.call(
+            cls.CHAIN_CONTRACT, "getPRep", params, block_number=block_number
+        )
+        validator = IcxValidator(**result)
+        return validator
+
+    @classmethod
+    async def get_validator_name(
+        cls,
+        address: str,
+        block_number: int = 0,
+    ) -> str:
+        validator = await cls.get_validator(address, block_number=block_number)
+        return validator.name
 
     @classmethod
     async def get_validators(
@@ -154,5 +210,9 @@ class IcxAsync(Icx):
     async def _make_api_request(cls, payload):
         async with httpx.AsyncClient() as client:
             r = await client.post(f"{cls.ICON_API_ENDPOINT}/api/v3", json=payload)
-        data = r.json()
-        return data["result"]
+
+        if r.status_code == 200:
+            data = r.json()
+            return data["result"]
+        else:
+            raise FailedIcxCallException
