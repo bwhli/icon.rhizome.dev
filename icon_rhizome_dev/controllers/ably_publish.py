@@ -39,4 +39,5 @@ class AblyPublishController(Controller):
 
     @post(path="/publish/")
     async def publish(self, message: str) -> None:
+
         r = HttpClient.post()

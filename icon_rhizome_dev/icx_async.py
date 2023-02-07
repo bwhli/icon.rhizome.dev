@@ -1,10 +1,12 @@
 import asyncio
 
 import httpx
+from httpx._exceptions import HTTPStatusError
 
-from icon_rhizome_dev.exceptions import OfflineNodeException
+from icon_rhizome_dev.constants import EXA
+from icon_rhizome_dev.exceptions import FailedIcxCallException, OfflineNodeException
 from icon_rhizome_dev.icx import Icx
-from icon_rhizome_dev.models.icx import IcxValidator
+from icon_rhizome_dev.models.icx import IcxDelegation, IcxTokenMetadata, IcxValidator
 from icon_rhizome_dev.redis_client import RedisClient
 from icon_rhizome_dev.utils import Utils
 
@@ -14,12 +16,59 @@ class IcxAsync(Icx):
         pass
 
     @classmethod
+    async def get_balance(
+        cls,
+        address: str,
+        in_icx=True,
+        block_number: int = 0,
+    ) -> int | float:
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1234,
+            "method": "icx_getBalance",
+            "params": {
+                "address": address,
+            },
+        }
+        # Add height param to payload if height is provided.
+        if block_number != 0:
+            payload["params"]["height"] = Utils.int_to_hex(block_number)
+        result = await cls._make_api_request(payload)
+        balance = Utils.hex_to_int(result)
+        if in_icx is True:
+            balance = balance / 10**EXA
+        return balance
+
+    @classmethod
     async def get_last_block(cls, height_only=False):
         payload = {"jsonrpc": "2.0", "method": "icx_getLastBlock", "id": 1234}
         result = await cls._make_api_request(payload)
         if height_only is True:
             return result["height"]
         return result
+
+    @classmethod
+    async def get_delegation(
+        cls,
+        address: str,
+        block_number: int = 0,
+    ):
+        params = {"address": address}
+        result = await cls.call(
+            cls.CHAIN_CONTRACT,
+            "getDelegation",
+            params,
+            block_number=block_number,
+        )
+        delegations = [
+            IcxDelegation(
+                amount=delegation["value"],
+                validator_address=delegation["address"],
+                validator_name=await cls.get_validator_name(delegation["address"]),
+            )
+            for delegation in result["delegations"]
+        ]
+        return delegations
 
     @classmethod
     async def get_cps_validator_addresses(cls, block_number: int = 0):
@@ -57,6 +106,108 @@ class IcxAsync(Icx):
             if isinstance(v, str):
                 result["rewardFund"][k] = Utils.hex_to_int(v)
         return result
+
+    @classmethod
+    async def get_token_balance(
+        cls,
+        address: str,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> int:
+        params = {"_owner": address}
+        result = await IcxAsync.call(
+            token_contract,
+            "balanceOf",
+            params,
+            block_number=block_number,
+        )
+        return Utils.hex_to_int(result)
+
+    @classmethod
+    async def get_token_decimals(
+        cls,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> int:
+        result = await IcxAsync.call(
+            token_contract,
+            "decimals",
+            block_number=block_number,
+        )
+        return Utils.hex_to_int(result)
+
+    @classmethod
+    async def get_token_name(
+        cls,
+        address: str,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> str:
+        params = {"_owner": address}
+        result = await IcxAsync.call(
+            token_contract,
+            "name",
+            params,
+            block_number=block_number,
+        )
+        return result
+
+    @classmethod
+    async def get_token_symbol(
+        cls,
+        address: str,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> str:
+        params = {"_owner": address}
+        result = await IcxAsync.call(
+            token_contract,
+            "symbol",
+            params,
+            block_number=block_number,
+        )
+        return result
+
+    @classmethod
+    async def get_token_metadata(
+        cls,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> IcxTokenMetadata:
+        token_decimals, token_name, token_symbol = await asyncio.gather(
+            cls.get_token_decimals(token_contract, block_number),
+            cls.get_token_name(token_contract, block_number),
+            cls.get_token_symbol(token_contract, block_number),
+        )
+        token_metadata = IcxTokenMetadata(
+            contract=token_contract,
+            decimals=token_decimals,
+            name=token_name,
+            symbol=token_symbol,
+        )
+        return token_metadata
+
+    @classmethod
+    async def get_validator(
+        cls,
+        address: str,
+        block_number: int = 0,
+    ) -> IcxValidator:
+        params = {"address": address}
+        result = await cls.call(
+            cls.CHAIN_CONTRACT, "getPRep", params, block_number=block_number
+        )
+        validator = IcxValidator(**result)
+        return validator
+
+    @classmethod
+    async def get_validator_name(
+        cls,
+        address: str,
+        block_number: int = 0,
+    ) -> str:
+        validator = await cls.get_validator(address, block_number=block_number)
+        return validator.name
 
     @classmethod
     async def get_validators(
@@ -139,5 +290,9 @@ class IcxAsync(Icx):
     async def _make_api_request(cls, payload):
         async with httpx.AsyncClient() as client:
             r = await client.post(f"{cls.ICON_API_ENDPOINT}/api/v3", json=payload)
-        data = r.json()
-        return data["result"]
+
+        if r.status_code == 200:
+            data = r.json()
+            return data["result"]
+        else:
+            raise FailedIcxCallException

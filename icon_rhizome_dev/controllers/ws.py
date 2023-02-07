@@ -24,16 +24,18 @@ class WebSocketController(Controller):
     path = "/ws"
 
     @WebsocketRouteHandler(path="/")
-    async def websocket_handler(self, socket: WebSocket) -> None:
+    async def websocket_handler(
+        self,
+        socket: WebSocket,
+        channel: str = None,
+    ) -> None:
         await socket.accept()
 
         current_block = await IcxAsync.get_last_block(height_only=True)
 
         while True:
             try:
-
                 stale_block, current_block = current_block, await IcxAsync.get_last_block(height_only=True)  # fmt: skip
-
                 if current_block != stale_block:
                     data = f'<span id="block-height" hx-swap-oob="innerHTML">{Utils.format_number(current_block)}</span>'  # fmt: skip
                     await socket.send_text(data)
