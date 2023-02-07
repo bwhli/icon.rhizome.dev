@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from starlite import (
-    AllowedHostsConfig,
     CacheConfig,
     Request,
     Starlite,
@@ -62,12 +61,6 @@ def home_handler(request: Request) -> Template:
 
 # Initialize Starlite app.
 app = Starlite(
-    allowed_hosts=AllowedHostsConfig(
-        allowed_hosts=[
-            "localhost",
-            "icon.rhizome.dev",
-        ],
-    ),
     cache_config=cache_config,
     compression_config=CompressionConfig(backend="brotli", brotli_gzip_fallback=True),
     route_handlers=[

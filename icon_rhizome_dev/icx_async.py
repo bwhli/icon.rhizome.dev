@@ -6,7 +6,7 @@ from httpx._exceptions import HTTPStatusError
 from icon_rhizome_dev.constants import EXA
 from icon_rhizome_dev.exceptions import FailedIcxCallException, OfflineNodeException
 from icon_rhizome_dev.icx import Icx
-from icon_rhizome_dev.models.icx import IcxDelegation, IcxValidator
+from icon_rhizome_dev.models.icx import IcxDelegation, IcxTokenMetadata, IcxValidator
 from icon_rhizome_dev.redis_client import RedisClient
 from icon_rhizome_dev.utils import Utils
 
@@ -122,6 +122,70 @@ class IcxAsync(Icx):
             block_number=block_number,
         )
         return Utils.hex_to_int(result)
+
+    @classmethod
+    async def get_token_decimals(
+        cls,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> int:
+        result = await IcxAsync.call(
+            token_contract,
+            "decimals",
+            block_number=block_number,
+        )
+        return Utils.hex_to_int(result)
+
+    @classmethod
+    async def get_token_name(
+        cls,
+        address: str,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> str:
+        params = {"_owner": address}
+        result = await IcxAsync.call(
+            token_contract,
+            "name",
+            params,
+            block_number=block_number,
+        )
+        return result
+
+    @classmethod
+    async def get_token_symbol(
+        cls,
+        address: str,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> str:
+        params = {"_owner": address}
+        result = await IcxAsync.call(
+            token_contract,
+            "symbol",
+            params,
+            block_number=block_number,
+        )
+        return result
+
+    @classmethod
+    async def get_token_metadata(
+        cls,
+        token_contract: str,
+        block_number: int = 0,
+    ) -> IcxTokenMetadata:
+        token_decimals, token_name, token_symbol = await asyncio.gather(
+            cls.get_token_decimals(token_contract, block_number),
+            cls.get_token_name(token_contract, block_number),
+            cls.get_token_symbol(token_contract, block_number),
+        )
+        token_metadata = IcxTokenMetadata(
+            contract=token_contract,
+            decimals=token_decimals,
+            name=token_name,
+            symbol=token_symbol,
+        )
+        return token_metadata
 
     @classmethod
     async def get_validator(

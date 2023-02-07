@@ -42,11 +42,11 @@ class IcxDelegation(BaseModel):
         return values
 
 
-class IcxTokenBalance(BaseModel):
-    address: str
-    amount: float
-    token_contract: str
-    token_ticker: str
+class IcxTokenMetadata(BaseModel):
+    contract: str
+    decimals: int
+    name: str
+    symbol: str
 
 
 class IcxTransaction(BaseModel):
