@@ -157,13 +157,14 @@ class GovernanceController(Controller):
         self,
         block_number: int = 0,
         active_only: bool = True,
-        sort_by: str = None,
+        sort_by: str | None = None,
         sort_dir: str = "asc",
     ) -> Template:
 
         # Fetch validator info.
         validators = await self.get_validators(
-            block_number=block_number, active_only=active_only
+            block_number=block_number,
+            active_only=active_only,
         )
 
         # Only return column if column is specified.
@@ -184,10 +185,10 @@ class GovernanceController(Controller):
         self,
         block_number: int = 0,
         active_only: bool = True,
-        sort_by: str = None,
+        sort_by: str | None = None,
         sort_dir: str = "asc",
-        column: str = None,
-        rows: str = None,
+        column: str | None = None,
+        rows: str | None = None,
     ) -> Template:
 
         # Convert string None to "None None".
@@ -223,7 +224,7 @@ class GovernanceController(Controller):
     async def get_htmx_node_status_check_modal(
         self,
         address: str,
-        hostname: str = None,
+        hostname: str | None = None,
     ) -> Template:
 
         if hostname is None:
@@ -240,7 +241,7 @@ class GovernanceController(Controller):
     @get(path="/htmx/node-status-check-result/")
     async def get_htmx_node_status_check(
         self,
-        hostname: str = None,
+        hostname: str | None = None,
     ) -> Template:
         node_status = await IcxAsync.get_node_status(hostname)
         return Template(

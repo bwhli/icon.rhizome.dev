@@ -108,12 +108,15 @@ class ToolsController(Controller):
 
         async def _generate_iscore_claim_record(transaction: IcxTransaction):
             try:
-                iscore_claimed, icx_usd_price = await asyncio.gather(
-                    Tracker.get_iscore_claimed(transaction.hash),
-                    IcxAsync.get_icx_usd_price(block_number),
-                )
                 block_number = transaction.block_number
                 block_timestamp = transaction.block_timestamp / 1000000
+                tx_hash = transaction.hash
+
+                iscore_claimed, icx_usd_price = await asyncio.gather(
+                    Tracker.get_iscore_claimed(tx_hash),
+                    IcxAsync.get_icx_usd_price(block_number),
+                )
+
                 transaction_date = datetime.utcfromtimestamp(block_timestamp).isoformat()  # fmt: skip
                 icx_claimed = iscore_claimed / 10**18 / 1000
                 iscore_claim_record = {
@@ -122,11 +125,12 @@ class ToolsController(Controller):
                     "icx_claimed": icx_claimed,
                     "icx_usd_price": icx_usd_price,
                     "usd_value_claimed": icx_claimed * icx_usd_price,
-                    "tx_hash": transaction.hash,
+                    "tx_hash": tx_hash,
                 }
-                print(f"Processed {transaction.hash}...")
+                print(f"Processed {tx_hash}...")
                 return iscore_claim_record
-            except:
+            except Exception as e:
+                print(transaction)
                 print(e)
 
         iscore_claims = await asyncio.gather(*[_generate_iscore_claim_record(transaction) for transaction in iscore_claim_transactions])  # fmt: skip
