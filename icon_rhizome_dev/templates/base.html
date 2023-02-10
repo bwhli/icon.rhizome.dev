@@ -26,20 +26,31 @@
     </head>
 
     <body class="flex flex-col min-h-screen subpixel-antialiased text-gray-100 bg-black">
-        <header class=" flex items-center justify-between p-4">
-            <h1 class="text-3xl font-bold">
-                <a href="/" class="hover:underline hover:text-cyan-500">RHIZOME</a>
-            </h1>
-            <nav>
+        <header class="flex flex-col border-b border-gray-800">
+            <div class="flex items-center justify-between gap-4 px-4 py-2">
+                <h1 class="text-3xl font-bold">
+                    <a href="/" class="hover:underline hover:text-cyan-500">RHIZOME</a>
+                </h1>
+                <button _="on click toggle .hidden on #nav-menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+            </div>
+            <nav id="nav-menu" class="hidden p-4 overflow-x-auto border-t border-gray-800">
                 <ul class="flex gap-4">
                     <li>
-                        <a href="/tools/" class="hover:underline hover:text-cyan-500 text-lg font-semibold">
-                            Tools
+                        <a href="/governance/"
+                            class="hover:bg-purple-800 w-fit px-3 py-2 text-sm font-bold uppercase bg-purple-700 rounded-md">
+                            Governance
                         </a>
                     </li>
                     <li>
-                        <a href="/governance/" class="hover:underline hover:text-cyan-500 text-lg font-semibold">
-                            Governance
+                        <a href="/tools/"
+                            class="hover:bg-purple-800 w-fit px-3 py-2 text-sm font-bold uppercase bg-purple-700 rounded-md">
+                            Tools
                         </a>
                     </li>
                 </ul>

@@ -8,7 +8,6 @@ from pydantic import BaseModel, ValidationError, validator
 from starlite import Body, Controller, RequestEncodingType, Template, get, post
 
 from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME
-from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.icx import IcxTransaction
 from icon_rhizome_dev.s3 import S3
