@@ -1,0 +1,78 @@
+<div>
+    <div class="flex flex-col gap-4 p-4 bg-gray-900 border border-gray-800">
+        <header>
+            <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Balanced</h2>
+        </header>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="flex flex-col gap-4 rounded-lg">
+                <header>
+                    <h2 class="whitespace-nowrap text-2xl font-bold">Loans</h2>
+                </header>
+                {% set loan_position = data.balanced.loan_position %}
+                <div class="flex flex-col gap-4">
+                    {% for asset in ["btcb", "eth", "sicx"] %}
+                    <div>
+                        {% set asset_position = loan_position.standings[asset] %}
+                        {% if asset_position.ratio > 0 %}
+                        <header class="text-lg font-semibold">{{ format_asset_symbol(asset) }}</header>
+                        <ul>
+                            <li>Standing: {{ asset_position.standing }}</li>
+                            <li>Collateral: {{ format_asset_amount(asset_position.collateral, asset) }}</li>
+                            <li>Ratio: {{ format_percentage(asset_position.ratio) }}</li>
+                            <li>Total Debt: {{ format_asset_amount(asset_position.total_debt, asset) }}</li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4 rounded-lg">
+                <header>
+                    <h2 class="whitespace-nowrap text-2xl font-bold">Loans</h2>
+                </header>
+                {% set loan_position = data.balanced.loan_position %}
+                <div class="flex flex-col gap-4">
+                    {% for asset in ["btcb", "eth", "sicx"] %}
+                    <div>
+                        {% set asset_position = loan_position.standings[asset] %}
+                        {% if asset_position.ratio > 0 %}
+                        <header class="text-lg font-semibold">{{ format_asset_symbol(asset) }}</header>
+                        <ul>
+                            <li>Standing: {{ asset_position.standing }}</li>
+                            <li>Collateral: {{ format_asset_amount(asset_position.collateral, asset) }}</li>
+                            <li>Ratio: {{ format_percentage(asset_position.ratio) }}</li>
+                            <li>Total Debt: {{ format_asset_amount(asset_position.total_debt, asset) }}</li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4 rounded-lg">
+                <header>
+                    <h2 class="whitespace-nowrap text-2xl font-bold">Loans</h2>
+                </header>
+                {% set loan_position = data.balanced.loan_position %}
+                <div class="flex flex-col gap-4">
+                    {% for asset in ["btcb", "eth", "sicx"] %}
+                    <div>
+                        {% set asset_position = loan_position.standings[asset] %}
+                        {% if asset_position.ratio > 0 %}
+                        <header class="text-lg font-semibold">{{ format_asset_symbol(asset) }}</header>
+                        <ul>
+                            <li>Standing: {{ asset_position.standing }}</li>
+                            <li>Collateral: {{ format_asset_amount(asset_position.collateral, asset) }}</li>
+                            <li>Ratio: {{ format_percentage(asset_position.ratio) }}</li>
+                            <li>Total Debt: {{ format_asset_amount(asset_position.total_debt, asset) }}</li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -290,9 +290,9 @@ class IcxAsync(Icx):
     async def _make_api_request(cls, payload):
         async with httpx.AsyncClient() as client:
             r = await client.post(f"{cls.ICON_API_ENDPOINT}/api/v3", json=payload)
-
         if r.status_code == 200:
             data = r.json()
-            return data["result"]
+            result = data["result"]
+            return result
         else:
             raise FailedIcxCallException

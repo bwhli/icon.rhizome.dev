@@ -46,7 +46,9 @@ template_config.engine_instance.engine.globals["NOW"] = int(NOW.timestamp())  # 
 template_config.engine_instance.engine.globals["YEAR"] = YEAR
 
 # Global template functions.
-template_config.engine_instance.engine.globals["format_number"] = Utils.format_number
+template_config.engine_instance.engine.globals["format_asset_amount"] = Utils.format_asset_amount  # fmt: skip
+template_config.engine_instance.engine.globals["format_asset_symbol"] = Utils.format_asset_symbol  # fmt: skip
+template_config.engine_instance.engine.globals["format_number"] = Utils.format_number  # fmt: skip
 template_config.engine_instance.engine.globals["format_percentage"] = Utils.format_percentage  # fmt: skip
 
 

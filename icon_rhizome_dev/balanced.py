@@ -1,4 +1,7 @@
+from rich import print
+
 from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.models.balanced import BalancedLoan
 
 
 class Balanced(IcxAsync):
@@ -20,4 +23,4 @@ class Balanced(IcxAsync):
             {"_owner": address},
             block_number=block_number,
         )
-        return
+        return BalancedLoan(**result)

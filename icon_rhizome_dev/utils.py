@@ -11,6 +11,32 @@ class Utils:
         pass
 
     @staticmethod
+    def format_asset_amount(
+        amount: int,
+        symbol: str,
+        decimal_places: int = 4,
+    ) -> str:
+        decimals = {
+            "bnusd": 18,
+            "btcb": 18,
+            "eth": 18,
+            "sicx": 18,
+        }
+        amount = amount / 10 ** decimals[symbol]
+        amount_str = f"{amount:,.{decimal_places}f}".rstrip("0")
+        return amount_str
+
+    @staticmethod
+    def format_asset_symbol(symbol: str) -> str:
+        symbols = {
+            "bnusd": "bnUSD",
+            "btcb": "BTCB",
+            "eth": "ETH",
+            "sicx": "sICX",
+        }
+        return symbols[symbol]
+
+    @staticmethod
     def int_to_string(
         value: int,
         decimals: int = 4,
