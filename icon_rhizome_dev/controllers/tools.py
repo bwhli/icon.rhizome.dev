@@ -42,6 +42,15 @@ class ToolsController(Controller):
             },
         )
 
+    @get(path="/address-book/")
+    async def get_address_book(self) -> Template:
+        return Template(
+            name="tools/address_book/index.html",
+            context={
+                "title": "ICON Tools",
+            },
+        )
+
     @post(path="/htmx/icx-staking-rewards-exporter/")
     async def get_tools_htmx_icx_staking_rewards_exporter(
         self,

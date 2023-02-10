@@ -1,36 +1,6 @@
 {% extends "base.html" %}
 
 {% block container %}
-<div id="container" class="grow flex flex-col justify-center" _="">
-    <div id="address-book" _="on load
-                                set rhizomeTrackerAddressBook to localStorage.rhizomeTrackerAddressBook
-                                log rhizomeTrackerAddressBook
-                                "></div>
-    <header class="py-8">
-        <h1 class="text-4xl font-bold text-center">Address Book</h1>
-    </header>
-    <form id="address-book-form" class="flex flex-col gap-4">
-        <input id="icx-address-input" type="text" name="icx-address" placeholder="ICX Address"
-            class="px-4 py-2 font-mono bg-gray-800 border border-gray-700 w-[42ch] box-content" />
-        <input id="icx-address-nickname-input" type="text" name="nickname" placeholder="Nickname"
-            class="px-4 py-2 font-mono bg-gray-800 border border-gray-700" />
-        <button type="button" _="on click
-                                    if localStorage.rhizomeTrackerAddressBook is null
-                                        log 'There are no addresses in the address book.'
-                                        log 'Creating rhizomeTrackerAddressBook object now.'
-                                        set localStorage.rhizomeTrackerAddressBook to {} as JSON
-                                    end
-                                    set icxAddress to the value of #icx-address-input
-                                    set icxAddressNickname to the value of #icx-address-nickname-input
-                                    set global rhizomeTrackerAddressBook to localStorage.rhizomeTrackerAddressBook as Object
-                                    set rhizomeTrackerAddressBook[icxAddress] to icxAddressNickname
-                                    set localStorage.rhizomeTrackerAddressBook to rhizomeTrackerAddressBook as JSON
-                                    set the value of #icx-address-input to ''
-                                    set the value of #icx-address-nickname-input to ''
-                                    "
-            class="hover:bg-purple-800 px-4 py-2 font-semibold bg-purple-700 border border-purple-600">
-            Submit
-        </button>
-    </form>
+<div id="container" class="grow flex flex-col justify-center">
 </div>
 {% endblock %}
