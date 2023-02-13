@@ -62,6 +62,7 @@ class ToolsController(Controller):
         whitelisted_addresses = [
             "hx9b402cbf72f713efd6b8d7a709cb6eb7ed7695cd",  # Brian
             "hxdcfe54451c017ecd3efe4becd11bcc7ea1cf252e",  # Andrew
+            "hx4a43790d44b07909d20fbcc233548fc80f7a4067",  # RHIZOME
         ]
 
         # Parse form data.

@@ -1,13 +1,11 @@
 import asyncio
 
 import httpx
-from httpx._exceptions import HTTPStatusError
 
 from icon_rhizome_dev.constants import EXA
 from icon_rhizome_dev.exceptions import FailedIcxCallException, OfflineNodeException
 from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.icx import IcxDelegation, IcxTokenMetadata, IcxValidator
-from icon_rhizome_dev.redis_client import RedisClient
 from icon_rhizome_dev.utils import Utils
 
 
