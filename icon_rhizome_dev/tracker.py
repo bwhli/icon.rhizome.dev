@@ -42,6 +42,18 @@ class Tracker:
         return token_addresses
 
     @classmethod
+    async def get_token_transfers(
+        cls,
+        from_address: str,
+        to_address: str,
+        limit: int = 100,
+    ) -> list:
+        url = f"{TRACKER_API_ENDPOINT}/transactions/token-transfers?limit={limit}&from={from_address}&to={to_address}"
+        r = await HttpClient.get(url)
+        token_transfers = r.json()
+        return token_transfers
+
+    @classmethod
     async def get_token_balances(cls, address: str, block_number: int = 0):
         token_addresses = await cls.get_token_addresses(address)
         token_balances = await asyncio.gather(*[IcxAsync.get_token_balance(address, token_address) for token_address in token_addresses])  # fmt: skip

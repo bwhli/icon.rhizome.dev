@@ -7,7 +7,7 @@ import pandas as pd
 from pydantic import BaseModel, ValidationError, validator
 from starlite import Body, Controller, RequestEncodingType, Template, get, post
 
-from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME
+from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME, SM_DISCORD_ADDRESSES
 from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.icx import IcxTransaction
 from icon_rhizome_dev.s3 import S3
@@ -51,6 +51,13 @@ class ToolsController(Controller):
             },
         )
 
+    @get(path="/cps-treasury-claims/")
+    async def get_cps_treasury_claims(self, address: str) -> list:
+        token_transfers = await Tracker.get_token_transfers(
+            "cxd965531d1cce5daad1d1d3ee1efb39ce68f442fc", address
+        )
+        return token_transfers
+
     @post(path="/htmx/icx-staking-rewards-exporter/")
     async def get_tools_htmx_icx_staking_rewards_exporter(
         self,
@@ -64,6 +71,8 @@ class ToolsController(Controller):
             "hxdcfe54451c017ecd3efe4becd11bcc7ea1cf252e",  # Andrew
             "hx4a43790d44b07909d20fbcc233548fc80f7a4067",  # RHIZOME
         ]
+
+        whitelisted_addresses = whitelisted_addresses + SM_DISCORD_ADDRESSES
 
         # Parse form data.
         icx_address = data.icxAddress
