@@ -19,6 +19,7 @@ from starlite.contrib.jinja import JinjaTemplateEngine
 from icon_rhizome_dev import ENV
 from icon_rhizome_dev.constants import BLOCK_TIME, NOW, PROJECT_DIR, YEAR
 from icon_rhizome_dev.controllers.address import AddressController
+from icon_rhizome_dev.controllers.balanced import BalancedController
 from icon_rhizome_dev.controllers.governance import GovernanceController
 from icon_rhizome_dev.controllers.tools import ToolsController
 from icon_rhizome_dev.controllers.transaction import TransactionController
@@ -67,6 +68,7 @@ app = Starlite(
     compression_config=CompressionConfig(backend="brotli", brotli_gzip_fallback=True),
     route_handlers=[
         AddressController,
+        BalancedController,
         GovernanceController,
         ToolsController,
         TransactionController,

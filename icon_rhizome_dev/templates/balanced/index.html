@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block container %}
+<div id="container" class="xl:gap-4 flex flex-col w-full gap-2">
+    <div id="balanced-stability-fund" hx-get="/balanced/htmx/stability-fund/" hx-trigger="load, every 60s"></div>
+</div>
+{% endblock %}
