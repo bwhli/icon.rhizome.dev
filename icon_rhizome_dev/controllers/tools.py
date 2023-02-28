@@ -90,8 +90,7 @@ class ToolsController(Controller):
                 print(f"No transactions in iteration #{i}. Breaking out of loop!")
                 break
 
-            for transaction in transactions:
-                claim_transactions.append(transaction)
+            claim_transactions += transactions
 
             i += 1
             continue
@@ -117,8 +116,7 @@ class ToolsController(Controller):
                 print(f"No transactions in iteration #{i}. Breaking out of loop!")
                 break
 
-            for transaction in transactions:
-                claim_transactions.append(transaction)
+            claim_transactions += transactions
 
             i += 1
             continue
@@ -144,7 +142,6 @@ class ToolsController(Controller):
                     token_transfer.token_contract_address,
                     token_transfer.block_number,
                 )
-                print(token_price_in_usd)
                 dividend_claim = BalancedDividendClaim(
                     contract=token_transfer.token_contract_address,
                     symbol=token_transfer.token_contract_symbol,
@@ -157,9 +154,9 @@ class ToolsController(Controller):
                 dividend_claims.append(dividend_claim)
             return
 
-        await asyncio.gather(
-            *[_get_dividend_claim(tx_hash) for tx_hash in claim_transaction_hashes]
-        )
+        async with asyncio.TaskGroup() as tg:
+            for tx_hash in claim_transaction_hashes:
+                tg.create_task(_get_dividend_claim(tx_hash))
 
         dividend_claims.sort(key=lambda k: k.block_number)
 

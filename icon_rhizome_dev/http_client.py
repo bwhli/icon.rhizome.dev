@@ -15,7 +15,10 @@ class HttpClient:
         async with httpx.AsyncClient(
             timeout=timeout, transport=httpx.AsyncHTTPTransport(retries=retries)
         ) as client:
-            response = await client.get(url, headers=headers)
+            response = await client.get(
+                url,
+                headers=headers,
+            )
             response.raise_for_status
             return response
 
@@ -31,6 +34,11 @@ class HttpClient:
         async with httpx.AsyncClient(
             timeout=timeout, transport=httpx.AsyncHTTPTransport(retries=retries)
         ) as client:
-            response = await client.post(url, headers=headers, json=payload, auth=auth)
+            response = await client.post(
+                url,
+                headers=headers,
+                json=payload,
+                auth=auth,
+            )
             response.raise_for_status
             return response
