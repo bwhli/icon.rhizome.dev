@@ -7,7 +7,7 @@ from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http_client import HttpClient
 from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.icx import IcxTransaction
-from icon_rhizome_dev.models.tracker import TrackerAddress
+from icon_rhizome_dev.models.tracker import TrackerAddress, TrackerLog
 from icon_rhizome_dev.redis_client import RedisClient
 
 
@@ -28,6 +28,54 @@ class Tracker:
         data = response.json()
         address_details = TrackerAddress(**data)
         return address_details
+
+    @classmethod
+    async def get_logs(
+        cls,
+        limit: int = 100,
+        skip: int = 0,
+        address: str = None,
+        block_number: int = None,
+        start_block_number: int = None,
+        end_block_number: int = None,
+        tx_hash: str = None,
+        method: str = None,
+    ) -> list[IcxTransaction]:
+        """
+        Returns a list of ICX transactions.
+        """
+        # Build query parameters.
+        query_params = []
+
+        if address is not None:
+            query_params.append(f"address={address}")
+        if type is not None:
+            query_params.append(f"type={type}")
+        if block_number is not None:
+            query_params.append(f"block_number={block_number}")
+        if start_block_number is not None:
+            query_params.append(f"block_start={start_block_number}")
+        if end_block_number is not None:
+            query_params.append(f"block_end={end_block_number}")
+        if tx_hash is not None:
+            query_params.append(f"transaction_hash={tx_hash}")
+        if method is not None:
+            query_params.append(f"method={method}")
+
+        url = f"{TRACKER_API_ENDPOINT}/logs?limit={limit}&skip={skip}"  # fmt: skip
+
+        if len(query_params) == 1:
+            url = f"{url}&{query_params[0]}"
+        elif len(query_params) > 1:
+            url = f"{url}&{'&'.join(query_params)}"
+
+        response = await HttpClient.get(url)
+
+        if response.status_code == 200:
+            logs = [TrackerLog(**log) for log in response.json()]  # fmt: skip
+            return logs
+        else:
+            return None
 
     @classmethod
     async def get_token_addresses(cls, address: str) -> list:
@@ -150,11 +198,12 @@ class Tracker:
             query_params.append(f"method={method}")
 
         url = f"{TRACKER_API_ENDPOINT}/transactions?limit={limit}&skip={skip}&sort={sort}"  # fmt: skip
-
         if len(query_params) == 1:
             url = f"{url}&{query_params[0]}"
         elif len(query_params) > 1:
             url = f"{url}&{'&'.join(query_params)}"
+
+        print(url)
 
         response = await HttpClient.get(url)
 

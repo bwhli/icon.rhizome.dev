@@ -1,4 +1,7 @@
-from pydantic import BaseModel
+import json
+from datetime import datetime
+
+from pydantic import BaseModel, root_validator
 
 
 class TrackerAddress(BaseModel):
@@ -24,3 +27,31 @@ class TrackerAddress(BaseModel):
     transaction_count: int
     transaction_internal_count: int
     type: str
+
+
+class TrackerLog(BaseModel):
+    transaction_hash: str
+    log_index: int
+    address: str
+    block_number: int
+    method: str
+    data: list | None
+    indexed: list | None
+    block_timestamp: datetime
+
+    @root_validator(pre=True)
+    def root_validator(cls, values):
+        data = values["data"]
+        indexed = values["indexed"]
+
+        try:
+            values["data"] = json.loads(data)
+        except:
+            values["data"] = None
+
+        try:
+            values["indexed"] = json.loads(indexed)
+        except:
+            values["indexed"] = None
+
+        return values

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 import pandas as pd
 from pydantic import BaseModel, ValidationError, validator
+from rich import print
 from starlite import Body, Controller, RequestEncodingType, Template, get, post
 
 from icon_rhizome_dev.constants import SM_DISCORD_ADDRESSES
@@ -50,6 +51,67 @@ class ToolsController(Controller):
                 "title": "ICON Tools",
             },
         )
+
+    @get(path="/balanced/dividends/")
+    async def get_balanced_dividends(
+        self,
+        icx_address: str,
+        year: int = 2022,
+    ) -> None:
+
+        # Get start and end blocks
+        year_start_ts = int(datetime(year, 1, 1, tzinfo=timezone.utc).timestamp())
+        year_end_ts = int(datetime(year + 1, 1, 1, tzinfo=timezone.utc).timestamp())
+        year_start_block = await Tracker.get_block_from_timestamp(year_start_ts, block_number_only=True)  # fmt: skip
+        year_end_block = await Tracker.get_block_from_timestamp(year_end_ts, block_number_only=True)  # fmt: skip
+
+        print(year_start_block, year_end_block)
+
+        claim_transactions = []
+
+        # Grab some stuff for Tracker.
+        i = 0
+        limit = 100
+        while True:
+
+            if i == 5:
+                print("AHAHAHA")
+                return
+
+            skip = int(i * limit)
+            print(f"Scraping tracker API for I-Score claims... ({i + 1}/n)")
+
+            transactions = await Tracker.get_transactions(
+                from_address=icx_address,
+                to_address="cx203d9cd2a669be67177e997b8948ce2c35caffae",
+                method="claimDividends",
+                start_block_number=year_start_block,
+                end_block_number=year_end_block,
+                limit=limit,
+                skip=skip,
+            )
+
+            if transactions is None:
+                print(f"No transactions in iteration #{i}. Breaking out of loop!")
+                break
+
+            for transaction in transactions:
+                claim_transactions.append(transaction)
+
+            i += 1
+            continue
+
+        # Build a list of transaction hashes.
+        claim_transaction_hashes = [
+            transaction.hash for transaction in claim_transactions
+        ]
+
+        async def _get_dividend_claim(tx_hash: str):
+            # Get claim log for transaction.
+            log = await Tracker.get_logs(tx_hash=tx_hash)
+            return
+
+        return claim_transaction_hashes
 
     @get(path="/cps-treasury-claims/")
     async def get_cps_treasury_claims(self, address: str) -> list:

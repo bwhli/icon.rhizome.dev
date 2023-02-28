@@ -2,7 +2,7 @@ import asyncio
 
 from starlite import Controller, Request, Template, get
 
-from icon_rhizome_dev.balanced import Balanced
+from icon_rhizome_dev.balanced.balanced_loans import BalancedLoans
 from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME
 from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.tracker import TrackerAddress
@@ -42,7 +42,7 @@ class AddressController(Controller):
         """Returns an HTMX component containing overviews for various ICON dApps."""
 
         async def _get_balanced_overview(address: str):
-            loan_position = await Balanced.get_loan_position(address)
+            loan_position = await BalancedLoans.get_loan_position(address)
             print(loan_position)
             return {"loan_position": loan_position}
 

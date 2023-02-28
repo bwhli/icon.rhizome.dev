@@ -4,12 +4,16 @@ import httpx
 
 from icon_rhizome_dev.constants import EXA
 from icon_rhizome_dev.exceptions import FailedIcxCallException, OfflineNodeException
-from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.icx import IcxDelegation, IcxTokenMetadata, IcxValidator
 from icon_rhizome_dev.utils import Utils
 
 
-class IcxAsync(Icx):
+class IcxAsync:
+
+    CHAIN_CONTRACT = "cx0000000000000000000000000000000000000000"
+    GOVERNANCE_CONTRACT = "cx0000000000000000000000000000000000000001"
+    ICON_API_ENDPOINT = "https://api.icon.community"
+
     def __init__(self) -> None:
         pass
 
@@ -80,13 +84,29 @@ class IcxAsync(Icx):
 
     @classmethod
     async def get_icx_usd_price(cls, block_number: int = 0):
-        params = {"_symbol": "ICX"}
-        result = await cls.call(
-            "cx087b4164a87fdfb7b714f3bafe9dfb050fd6b132",
-            "get_ref_data",
-            params,
-            block_number=block_number,
-        )
+        """
+        Returns the ICX/USD price.
+
+        Args:
+            block_number: The block height to query.
+        """
+        # Band oracle contract was updated after Block 60_344_196.
+        if block_number > 0 and block_number <= 60_344_196:
+            params = {"_symbol": "ICX"}
+            result = await cls.call(
+                "cx087b4164a87fdfb7b714f3bafe9dfb050fd6b132",
+                "get_ref_data",
+                params,
+                block_number=block_number,
+            )
+        else:
+            params = {"symbol": "ICX"}
+            result = await cls.call(
+                "cxca5faa5a71d986a2e84dd7e6f5ff791d29901ebe",
+                "getRefData",
+                params,
+                block_number=block_number,
+            )
         icx_usd_price = Utils.hex_to_int(result["rate"]) / 1000000000
         return icx_usd_price
 
@@ -253,6 +273,12 @@ class IcxAsync(Icx):
             payload["params"]["height"] = Utils.int_to_hex(block_number)
 
         result = await cls._make_api_request(payload)
+
+        if isinstance(result, str) and result.startswith("0x"):
+            try:
+                return Utils.hex_to_int(result)
+            except ValueError:
+                pass
         return result
 
     @classmethod
@@ -288,9 +314,9 @@ class IcxAsync(Icx):
     async def _make_api_request(cls, payload):
         async with httpx.AsyncClient() as client:
             r = await client.post(f"{cls.ICON_API_ENDPOINT}/api/v3", json=payload)
-        if r.status_code == 200:
             data = r.json()
+        if r.status_code == 200:
             result = data["result"]
             return result
         else:
-            raise FailedIcxCallException
+            raise FailedIcxCallException(data)
