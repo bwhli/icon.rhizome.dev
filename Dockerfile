@@ -1,19 +1,21 @@
-FROM python:3.11-slim
+FROM python:3.11-buster as venv
 
-# Create working directory
-WORKDIR /code
+ENV POETRY_VERSION=1.3.2
+RUN curl -sSL https://install.python-poetry.org | python
 
-# Copy requirements.txt
-COPY ./requirements.txt /code/requirements.txt
+WORKDIR /app
+COPY pyproject.toml poetry.lock ./
 
-# Install Python dependencies
-RUN apt update -y
-RUN apt install build-essential pkgconf -y
-RUN pip install --upgrade pip setuptools wheel
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN python -m venv --copies /app/venv
+RUN . /app/venv/bin/activate && ~/.local/share/pypoetry/venv/bin/poetry install --no-root
 
-# Copy application files
-COPY ./icon_rhizome_dev /code/icon_rhizome_dev
+FROM python:3.11-slim-buster as prod
+
+COPY --from=venv /app/venv /app/venv/
+ENV PATH /app/venv/bin:$PATH
+
+WORKDIR /app
+COPY ./icon_rhizome_dev /app/icon_rhizome_dev
 
 # Start application
 CMD ["gunicorn", "icon_rhizome_dev.main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "[::]:8080"]

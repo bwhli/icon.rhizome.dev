@@ -53,10 +53,10 @@ class ToolsController(Controller):
 
     @get(path="/cps-treasury-claims/")
     async def get_cps_treasury_claims(self, address: str) -> list:
-        token_transfers = await Tracker.get_token_transfers(
+        claims = await Tracker.get_token_transfers(
             "cxd965531d1cce5daad1d1d3ee1efb39ce68f442fc", address
         )
-        return token_transfers
+        return claims
 
     @post(path="/htmx/icx-staking-rewards-exporter/")
     async def get_tools_htmx_icx_staking_rewards_exporter(
