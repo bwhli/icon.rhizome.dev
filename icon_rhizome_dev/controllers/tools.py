@@ -8,6 +8,8 @@ from pydantic import BaseModel, ValidationError, validator
 from rich import print
 from starlite import Body, Controller, RequestEncodingType, Template, get, post
 
+from icon_rhizome_dev.balanced import Balanced
+from icon_rhizome_dev.balanced.balanced_dex import BalancedDex, BalancedDividendClaim
 from icon_rhizome_dev.constants import SM_DISCORD_ADDRESSES
 from icon_rhizome_dev.icx_async import IcxAsync
 from icon_rhizome_dev.models.icx import IcxTransaction
@@ -65,25 +67,45 @@ class ToolsController(Controller):
         year_start_block = await Tracker.get_block_from_timestamp(year_start_ts, block_number_only=True)  # fmt: skip
         year_end_block = await Tracker.get_block_from_timestamp(year_end_ts, block_number_only=True)  # fmt: skip
 
-        print(year_start_block, year_end_block)
-
         claim_transactions = []
 
-        # Grab some stuff for Tracker.
+        # Grab some stuff for V2 dividend claims.
         i = 0
         limit = 100
         while True:
-
-            if i == 5:
-                print("AHAHAHA")
-                return
-
             skip = int(i * limit)
-            print(f"Scraping tracker API for I-Score claims... ({i + 1}/n)")
+            print(f"Scraping tracker API for V1 dividend claims... ({i + 1}/n)")
 
             transactions = await Tracker.get_transactions(
                 from_address=icx_address,
-                to_address="cx203d9cd2a669be67177e997b8948ce2c35caffae",
+                to_address=Balanced.CONTRACT_BALANCED_DIVIDENDS,
+                method="claim",
+                start_block_number=year_start_block,
+                end_block_number=year_end_block,
+                limit=limit,
+                skip=skip,
+            )
+
+            if transactions is None:
+                print(f"No transactions in iteration #{i}. Breaking out of loop!")
+                break
+
+            for transaction in transactions:
+                claim_transactions.append(transaction)
+
+            i += 1
+            continue
+
+        # Grab some stuff for V2 dividend claims.
+        i = 0
+        limit = 100
+        while True:
+            skip = int(i * limit)
+            print(f"Scraping tracker API for V2 dividend claims... ({i + 1}/n)")
+
+            transactions = await Tracker.get_transactions(
+                from_address=icx_address,
+                to_address=Balanced.CONTRACT_BALANCED_DIVIDENDS,
                 method="claimDividends",
                 start_block_number=year_start_block,
                 end_block_number=year_end_block,
@@ -106,12 +128,73 @@ class ToolsController(Controller):
             transaction.hash for transaction in claim_transactions
         ]
 
-        async def _get_dividend_claim(tx_hash: str):
-            # Get claim log for transaction.
-            log = await Tracker.get_logs(tx_hash=tx_hash)
+        print(
+            f"Processing {len(claim_transaction_hashes)} dividend claims in {year}..."
+        )
+
+        dividend_claims: list[BalancedDividendClaim] = []
+
+        async def _get_dividend_claim(transaction_hash: str) -> None:
+            # Get token transfers associated with the transaction.
+            token_transfers = await Tracker.get_token_transfers(
+                transaction_hash=transaction_hash
+            )
+            for token_transfer in token_transfers:
+                token_price_in_usd = await BalancedDex.get_token_price_in_usd(
+                    token_transfer.token_contract_address,
+                    token_transfer.block_number,
+                )
+                print(token_price_in_usd)
+                dividend_claim = BalancedDividendClaim(
+                    contract=token_transfer.token_contract_address,
+                    symbol=token_transfer.token_contract_symbol,
+                    value=token_transfer.value_decimal,
+                    value_in_usd=token_transfer.value_decimal * token_price_in_usd,
+                    transaction_hash=token_transfer.transaction_hash,
+                    block_number=token_transfer.block_number,
+                    timestamp=token_transfer.block_timestamp,
+                )
+                dividend_claims.append(dividend_claim)
             return
 
-        return claim_transaction_hashes
+        await asyncio.gather(
+            *[_get_dividend_claim(tx_hash) for tx_hash in claim_transaction_hashes]
+        )
+
+        dividend_claims.sort(key=lambda k: k.block_number)
+
+        # Create CSV file.
+        header_row = [
+            "date",
+            "block_number",
+            "token_symbol",
+            "token_contract",
+            "value_claimed",
+            "usd_value_claimed",
+            "tx_hash",
+        ]
+        body_rows = [
+            [
+                dividend_claim.timestamp,
+                dividend_claim.block_number,
+                dividend_claim.symbol,
+                dividend_claim.contract,
+                dividend_claim.value,
+                dividend_claim.value_in_usd,
+                dividend_claim.transaction_hash,
+            ]
+            for dividend_claim in dividend_claims
+        ]
+        csv_stringio = Utils.generate_csv_file(header_row, body_rows)
+
+        # Upload file to S3.
+        s3 = S3()
+        filename = f"reports/balanced-dividend-claims/{icx_address}-balanced-dividend-claims-{year}.csv"  # fmt: skip
+        print(f"Uploading {filename} to S3...")
+        s3.upload_file(filename, bytes(csv_stringio.getvalue(), encoding="utf-8"))
+        print(f"Uploaded {filename} to S3!")
+
+        return f"https://tools-rhizome-dev.s3.us-west-2.amazonaws.com/{filename}"
 
     @get(path="/cps-treasury-claims/")
     async def get_cps_treasury_claims(self, address: str) -> list:
@@ -213,33 +296,25 @@ class ToolsController(Controller):
                 print(transaction)
                 print(e)
 
-        iscore_claims = await asyncio.gather(*[_generate_iscore_claim_record(transaction) for transaction in iscore_claim_transactions])  # fmt: skip
-        print("Sorting I-Score claims by block number...")
+        iscore_claims = await asyncio.gather(
+            *[
+                _generate_iscore_claim_record(transaction)
+                for transaction in iscore_claim_transactions
+            ]
+        )
         iscore_claims.sort(key=lambda k: k["block_number"])
 
         try:
-            # Create memory buffer for storing CSV file.
-            print("Creating CSV buffer in memory...")
-            csv_buffer = io.StringIO()
-
-            # Write header to CSV file.
-            print("Writing header to CSV...")
-            csv.writer(csv_buffer).writerow(
-                [
-                    "date",
-                    "block_number",
-                    "icx_claimed",
-                    "icx_usd_price",
-                    "usd_value_claimed",
-                    "tx_hash",
-                ]
-            )
-
-            # Write body to CSV file.
-            print("Writing I-Score claims to CSV...")
-            csv.writer(csv_buffer).writerows(
-                [iscore_claim.values() for iscore_claim in iscore_claims]
-            )
+            header_row = [
+                "date",
+                "block_number",
+                "icx_claimed",
+                "icx_usd_price",
+                "usd_value_claimed",
+                "tx_hash",
+            ]
+            body_rows = [iscore_claim.values() for iscore_claim in iscore_claims]
+            csv_stringio = Utils.generate_csv_file(header_row, body_rows)
 
             # Initialize S3 class.
             print("Initializing S3 instance...")
@@ -248,11 +323,11 @@ class ToolsController(Controller):
             # Upload file to S3.
             filename = f"icx-staking-rewards-reports/{icx_address}-icx-staking-rewards-{year}.csv"  # fmt: skip
             print(f"Uploading {filename} to S3...")
-            s3.upload(filename, bytes(csv_buffer.getvalue(), encoding="utf-8"))
+            s3.upload_file(filename, bytes(csv_stringio.getvalue(), encoding="utf-8"))
             print(f"Uploaded {filename} to S3!")
 
             # Create a dataframe from CSV data.
-            df = pd.read_csv(io.StringIO(csv_buffer.getvalue()))
+            df = pd.read_csv(io.StringIO(csv_stringio.getvalue()))
             distribution = df["icx_usd_price"]
             weights = df["icx_claimed"]
 

@@ -9,8 +9,8 @@ class HttpClient:
     async def get(
         url: str,
         headers: dict = None,
-        timeout: float = 10.0,
-        retries: int = 2,
+        timeout: float = 60.0,
+        retries: int = 5,
     ):
         async with httpx.AsyncClient(
             timeout=timeout, transport=httpx.AsyncHTTPTransport(retries=retries)
@@ -24,8 +24,8 @@ class HttpClient:
         url: str,
         payload: dict,
         headers: dict = None,
-        timeout: float = 10.0,
-        retries: int = 2,
+        timeout: float = 60.0,
+        retries: int = 5,
         auth: tuple = None,
     ):
         async with httpx.AsyncClient(

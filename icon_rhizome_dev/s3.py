@@ -14,7 +14,7 @@ class S3:
             aws_secret_access_key=self.aws_secret_key,
         )
 
-    def upload(self, filename, data):
+    def upload_file(self, filename, data):
         response = self.client.put_object(
             Body=data,
             Bucket=self.bucket,

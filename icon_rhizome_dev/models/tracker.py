@@ -3,6 +3,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, root_validator
 
+from icon_rhizome_dev.utils import Utils
+
 
 class TrackerAddress(BaseModel):
     address: str
@@ -40,7 +42,7 @@ class TrackerLog(BaseModel):
     block_timestamp: datetime
 
     @root_validator(pre=True)
-    def root_validator(cls, values):
+    def root_validator(cls, values: dict) -> dict:
         data = values["data"]
         indexed = values["indexed"]
 
@@ -54,4 +56,24 @@ class TrackerLog(BaseModel):
         except:
             values["indexed"] = None
 
+        return values
+
+
+class TrackerTokenTransfer(BaseModel):
+    token_contract_address: str
+    from_address: str
+    value: str
+    transaction_hash: str
+    log_index: int
+    block_number: int
+    value_decimal: float
+    block_timestamp: int
+    token_contract_name: str
+    transaction_fee: int
+    token_contract_symbol: str
+
+    @root_validator(pre=True)
+    def root_validator(cls, values: dict) -> dict:
+        values["value"] = Utils.hex_to_int(values["value"])
+        values["transaction_fee"] = Utils.hex_to_int(values["transaction_fee"])
         return values

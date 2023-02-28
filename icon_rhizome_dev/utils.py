@@ -1,3 +1,5 @@
+import csv
+import io
 from decimal import Decimal
 
 from rich import inspect
@@ -35,6 +37,15 @@ class Utils:
             "sicx": "sICX",
         }
         return symbols[symbol]
+
+    @staticmethod
+    def generate_csv_file(
+        header_row: list[str], body_rows: list[list[str]]
+    ) -> io.StringIO:
+        csv_buffer = io.StringIO()
+        csv.writer(csv_buffer).writerow(header_row)
+        csv.writer(csv_buffer).writerows(body_rows)
+        return csv_buffer
 
     @staticmethod
     def int_to_string(

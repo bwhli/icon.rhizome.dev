@@ -7,7 +7,7 @@
     "deploy": "fly deploy --strategy rolling --app icon-rhizome-dev --auto-confirm --remote-only --detach",
     "dev": "concurrently --kill-others \"npm run dev-build\" \"npm run dev-server\"",
     "dev-build": "npx tailwindcss -i ./icon_rhizome_dev/assets/css/main.css -o ./icon_rhizome_dev/static/css/style.css --watch",
-    "dev-server": "uvicorn icon_rhizome_dev.main:app --reload",
+    "dev-server": "uvicorn icon_rhizome_dev.main:app --reload --timeout-keep-alive 300",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
