@@ -198,9 +198,10 @@ class Tracker:
             delegations = response.json()
 
             total_delegation_value = sum([delegation["value"] for delegation in delegations])  # fmt: skip
-
+            print(total_delegation_value)
+            print(delegations)
             for delegation in delegations:
-                if delegation["prep"] == "hx4a43790d44b07909d20fbcc233548fc80f7a4067":
+                if delegation["prep_address"] == "hx4a43790d44b07909d20fbcc233548fc80f7a4067":  # fmt: skip
                     if delegation["value"] / total_delegation_value >= 0.2:
                         return True
 
