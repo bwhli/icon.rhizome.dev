@@ -49,6 +49,12 @@ class IcxTokenMetadata(BaseModel):
     symbol: str
 
 
+class IcxMulticallCall(BaseModel):
+    target: str
+    metho: str
+    params: list[int | str]
+
+
 class IcxTransaction(BaseModel):
     block_number: int
     block_timestamp: int

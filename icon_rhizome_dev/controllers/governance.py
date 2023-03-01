@@ -1,13 +1,11 @@
 import asyncio
-import hashlib
 from pathlib import Path
-from random import randint
-from typing import Any
 
 from starlite import Controller, Request, Template, get
 
-from icon_rhizome_dev.constants import BLOCK_TIME, EXA, PROJECT_DIR
+from icon_rhizome_dev.constants import EXA, PROJECT_DIR
 from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.models.icx import IcxValidator
 from icon_rhizome_dev.tracker import Tracker
 
 
@@ -18,10 +16,10 @@ class GovernanceController(Controller):
 
     path = "/governance"
 
-    def generate_etag(self, input: Any):
-        return hashlib.sha1(input.encode("utf-8")).hexdigest()
-
-    async def process_block_number(self, block_number: int = 0):
+    async def process_block_number(
+        self,
+        block_number: int = 0,
+    ) -> int:
         # Historical querying is not supported before this block.
         MIN_BLOCK_NUMBER = 43_550_000
 
@@ -39,9 +37,13 @@ class GovernanceController(Controller):
     async def get_validators(
         self,
         block_number: int = 0,
-        active_only: bool = True,
-    ):
+    ) -> list[IcxValidator]:
+        """
+        Returns a list of ICON validators.
 
+        Args:
+            block_number: The block height to query.
+        """
         block_number = await self.process_block_number(block_number)
 
         network_info, icx_usd_price, validators, cps_validators = await asyncio.gather(
@@ -70,13 +72,12 @@ class GovernanceController(Controller):
             if validator.address in cps_validators:
                 validator.cps = True
 
-        # If active_only is True, only return validators with a bond greater than 0 ICX.
-        # if active_only is True:
-        #    validators = [validator for validator in validators if validator.bonded > 0]
-
         return validators
 
-    def get_validator_images(self):
+    def get_validator_images(self) -> list[str]:
+        """
+        Returns a list of paths for validator images that exist.
+        """
         validator_images = [
             image.name
             for image in Path(f"{PROJECT_DIR}/static/images/validators").glob("*.png")
@@ -131,17 +132,6 @@ class GovernanceController(Controller):
         validators = await self.get_validators(
             block_number=block_number, active_only=active_only
         )
-
-        #        response_headers = None
-        #        if column == "identity":
-        #            validators = [
-        #                IcxValidatorIdentity(address=validator.address, name=validator.name)
-        #                for validator in validators
-        #            ]
-        #            etag = self.generate_etag(str(validators))
-        #
-        #            response_headers = {"ETag": etag}
-
         return Template(
             name=f"governance/htmx/validators_column_{column}.html",
             context={
@@ -149,7 +139,6 @@ class GovernanceController(Controller):
                 "validators": validators,
                 "validator_images": self.get_validator_images(),
             },
-            # headers=response_headers,
         )
 
     @get(path="/htmx/validators/rows/")

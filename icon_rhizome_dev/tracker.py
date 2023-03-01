@@ -281,20 +281,14 @@ class Tracker:
     @classmethod
     async def is_approved_voter(cls, address: str):
         url = f"{TRACKER_API_ENDPOINT}/governance/delegations/{address}?skip=0&limit=100"  # fmt: skip
-
         response = await HttpClient.get(url)
-
         if response.status_code == 200:
             delegations = response.json()
-
             total_delegation_value = sum([delegation["value"] for delegation in delegations])  # fmt: skip
-            print(total_delegation_value)
-            print(delegations)
             for delegation in delegations:
                 if delegation["prep_address"] == "hx4a43790d44b07909d20fbcc233548fc80f7a4067":  # fmt: skip
                     if delegation["value"] / total_delegation_value >= 0.2:
                         return True
-
         return False
 
     @staticmethod
