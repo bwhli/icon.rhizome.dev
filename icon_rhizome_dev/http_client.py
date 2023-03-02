@@ -6,6 +6,23 @@ class HttpClient:
         pass
 
     @staticmethod
+    async def head(
+        url: str,
+        headers: dict = None,
+        timeout: float = 60.0,
+        retries: int = 5,
+    ):
+        async with httpx.AsyncClient(
+            timeout=timeout, transport=httpx.AsyncHTTPTransport(retries=retries)
+        ) as client:
+            response = await client.head(
+                url,
+                headers=headers,
+            )
+            response.raise_for_status
+            return response
+
+    @staticmethod
     async def get(
         url: str,
         headers: dict = None,

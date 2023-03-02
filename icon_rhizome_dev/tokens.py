@@ -28,11 +28,6 @@ class Tokens:
             symbol="IUSDC",
             decimals=6,
         ),
-        "cxae3034235540b924dfcc1b45836c293dcc82bfb7": Irc2Token(
-            contract="cxae3034235540b924dfcc1b45836c293dcc82bfb7",
-            symbol="IUSDC",
-            decimals=6,
-        ),
         "cx2609b924e33ef00b648a409245c7ea394c467824": Irc2Token(
             contract="cx2609b924e33ef00b648a409245c7ea394c467824",
             symbol="sICX",

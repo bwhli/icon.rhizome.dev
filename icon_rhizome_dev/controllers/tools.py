@@ -1,5 +1,4 @@
 import asyncio
-import csv
 import io
 from datetime import datetime, timezone
 
@@ -23,7 +22,7 @@ class ToolsController(Controller):
     A controller for routes relating to ICX transactions.
     """
 
-    path = f"/tools"
+    path = "/tools"
 
     class IcxStakingRewardsExporterFormData(BaseModel):
         icxAddress: str
@@ -64,8 +63,12 @@ class ToolsController(Controller):
         # Get start and end blocks
         year_start_ts = int(datetime(year, 1, 1, tzinfo=timezone.utc).timestamp())
         year_end_ts = int(datetime(year + 1, 1, 1, tzinfo=timezone.utc).timestamp())
-        year_start_block = await Tracker.get_block_from_timestamp(year_start_ts, block_number_only=True)  # fmt: skip
-        year_end_block = await Tracker.get_block_from_timestamp(year_end_ts, block_number_only=True)  # fmt: skip
+        year_start_block = await Tracker.get_block_from_timestamp(
+            year_start_ts, block_number_only=True
+        )
+        year_end_block = await Tracker.get_block_from_timestamp(
+            year_end_ts, block_number_only=True
+        )
 
         claim_transactions = []
 
@@ -186,7 +189,7 @@ class ToolsController(Controller):
 
         # Upload file to S3.
         s3 = S3()
-        filename = f"reports/balanced-dividend-claims/{icx_address}-balanced-dividend-claims-{year}.csv"  # fmt: skip
+        filename = f"reports/balanced-dividend-claims/{icx_address}-balanced-dividend-claims-{year}.csv"
         print(f"Uploading {filename} to S3...")
         s3.upload_file(filename, bytes(csv_stringio.getvalue(), encoding="utf-8"))
         print(f"Uploaded {filename} to S3!")
@@ -234,8 +237,12 @@ class ToolsController(Controller):
         # Get start and end blocks
         year_start_ts = int(datetime(year, 1, 1, tzinfo=timezone.utc).timestamp())
         year_end_ts = int(datetime(year + 1, 1, 1, tzinfo=timezone.utc).timestamp())
-        year_start_block = await Tracker.get_block_from_timestamp(year_start_ts, block_number_only=True)  # fmt: skip
-        year_end_block = await Tracker.get_block_from_timestamp(year_end_ts, block_number_only=True)  # fmt: skip
+        year_start_block = await Tracker.get_block_from_timestamp(
+            year_start_ts, block_number_only=True
+        )
+        year_end_block = await Tracker.get_block_from_timestamp(
+            year_end_ts, block_number_only=True
+        )
 
         # Grab some stuff for Tracker.
         i = 0
@@ -264,7 +271,9 @@ class ToolsController(Controller):
 
             continue
 
-        print(f"Processing {len(iscore_claim_transactions)} I-Score claims in {year}...")  # fmt: skip
+        print(
+            f"Processing {len(iscore_claim_transactions)} I-Score claims in {year}..."
+        )
 
         async def _generate_iscore_claim_record(transaction: IcxTransaction):
             try:
@@ -277,7 +286,9 @@ class ToolsController(Controller):
                     IcxAsync.get_icx_usd_price(block_number),
                 )
 
-                transaction_date = datetime.utcfromtimestamp(block_timestamp).isoformat()  # fmt: skip
+                transaction_date = datetime.utcfromtimestamp(
+                    block_timestamp
+                ).isoformat()
                 icx_claimed = iscore_claimed / 10**18 / 1000
                 iscore_claim_record = {
                     "date": transaction_date,
@@ -318,7 +329,7 @@ class ToolsController(Controller):
             s3 = S3()
 
             # Upload file to S3.
-            filename = f"icx-staking-rewards-reports/{icx_address}-icx-staking-rewards-{year}.csv"  # fmt: skip
+            filename = f"icx-staking-rewards-reports/{icx_address}-icx-staking-rewards-{year}.csv"
             print(f"Uploading {filename} to S3...")
             s3.upload_file(filename, bytes(csv_stringio.getvalue(), encoding="utf-8"))
             print(f"Uploaded {filename} to S3!")
@@ -346,7 +357,9 @@ class ToolsController(Controller):
                     "download_url": f"https://tools-rhizome-dev.s3.us-west-2.amazonaws.com/{filename}",
                     "total_icx_claimed": Utils.fmt(total_icx_claimed),
                     "total_usd_claimed": Utils.fmt(total_usd_claimed),
-                    "average_icx_usd_claim_price": Utils.fmt(average_icx_usd_claim_price),  # fmt: skip
+                    "average_icx_usd_claim_price": Utils.fmt(
+                        average_icx_usd_claim_price
+                    ),
                     "year": year,
                 },
             )

@@ -1,7 +1,7 @@
 import asyncio
 from pathlib import Path
 
-from starlite import Controller, Request, Template, get
+from starlite import Controller, Template, get
 
 from icon_rhizome_dev.constants import EXA, PROJECT_DIR
 from icon_rhizome_dev.icx_async import IcxAsync
@@ -109,7 +109,7 @@ class GovernanceController(Controller):
         block_number = await self.process_block_number(block_number)
         network_info = await IcxAsync.get_network_info(block_number)
         return Template(
-            name=f"governance/htmx/overview.html",
+            name="governance/htmx/overview.html",
             context={
                 "block_number": block_number,
                 "network_info": network_info,
@@ -119,19 +119,15 @@ class GovernanceController(Controller):
     @get(path="/htmx/validators/column/{column:str}/")
     async def get_htmx_validators_column(
         self,
-        request: Request,
         column: str,
         block_number: int = 0,
-        active_only: bool = True,
     ) -> Template:
 
         # Convert string None to "None None".
         column = None if column == "None" else column
 
         # Fetch validator info.
-        validators = await self.get_validators(
-            block_number=block_number, active_only=active_only
-        )
+        validators = await self.get_validators(block_number=block_number)
         return Template(
             name=f"governance/htmx/validators_column_{column}.html",
             context={
@@ -145,7 +141,6 @@ class GovernanceController(Controller):
     async def get_htmx_validators_row(
         self,
         block_number: int = 0,
-        active_only: bool = True,
         sort_by: str | None = None,
         sort_dir: str = "asc",
     ) -> Template:
@@ -153,12 +148,11 @@ class GovernanceController(Controller):
         # Fetch validator info.
         validators = await self.get_validators(
             block_number=block_number,
-            active_only=active_only,
         )
 
         # Only return column if column is specified.
         return Template(
-            name=f"governance/htmx/validators_rows.html",
+            name="governance/htmx/validators_rows.html",
             context={
                 "block_number": block_number,
                 "validators": validators,
@@ -173,7 +167,6 @@ class GovernanceController(Controller):
     async def get_htmx_validators(
         self,
         block_number: int = 0,
-        active_only: bool = True,
         sort_by: str | None = None,
         sort_dir: str = "asc",
         column: str | None = None,
@@ -186,9 +179,7 @@ class GovernanceController(Controller):
         sort_by = None if sort_by == "None" else sort_by
 
         # Fetch validator info.
-        validators = await self.get_validators(
-            block_number=block_number, active_only=active_only
-        )
+        validators = await self.get_validators(block_number=block_number)
 
         # Sort validators by key.
         if sort_by is not None:

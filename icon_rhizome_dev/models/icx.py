@@ -74,7 +74,7 @@ class IcxTransaction(BaseModel):
         try:
             v = orjson.loads(v)
             return v
-        except:
+        except ValueError:
             return None
 
     @validator("transaction_fee")

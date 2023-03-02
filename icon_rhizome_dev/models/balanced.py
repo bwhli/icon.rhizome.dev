@@ -3,7 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel, root_validator
 from rich import print
 
-from icon_rhizome_dev.constants import EXA
 from icon_rhizome_dev.utils import Utils
 
 
@@ -102,7 +101,9 @@ class BalancedLoan(BaseModel):
     @root_validator(pre=True)
     def root_validator(cls, values: dict) -> dict:
         values["collateral"] = Utils.hex_to_int(values["collateral"])
-        values["created"] = datetime.utcfromtimestamp(Utils.hex_to_int(values["created"]) / 1_000_000)  # fmt: skip
+        values["created"] = datetime.utcfromtimestamp(
+            Utils.hex_to_int(values["created"]) / 1_000_000
+        )
         values["pos_id"] = Utils.hex_to_int(values["pos_id"])
         values["ratio"] = Utils.hex_to_int(values["ratio"])
         values["total_debt"] = Utils.hex_to_int(values["total_debt"])

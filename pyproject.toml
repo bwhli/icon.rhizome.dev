@@ -27,6 +27,7 @@ piccolo = {extras = ["sqlite"], version = "^0.105.0"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.1"
+ruff = "^0.0.253"
 
 [build-system]
 requires = ["poetry-core"]

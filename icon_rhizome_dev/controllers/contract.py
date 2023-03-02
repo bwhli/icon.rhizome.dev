@@ -1,7 +1,6 @@
-from starlite import Controller, get
+from starlite import Controller
 
-from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME
-from icon_rhizome_dev.tracker import Tracker
+from icon_rhizome_dev.constants import API_PREFIX
 
 
 class ContractsController(Controller):

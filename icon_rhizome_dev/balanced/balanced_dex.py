@@ -36,7 +36,7 @@ class BalancedDex(Balanced):
             block_number: The block height to query.
         """
         if Tokens.get_symbol_by_contract(token_contract) == "BALN":
-            print(f"Calculating BALN price in USD...")
+            print("Calculating BALN price in USD...")
             sicx_icx_price, sicx_baln_price, icx_usd_price = await asyncio.gather(
                 *[
                     cls._get_price_by_name("sICX/ICX", block_number=block_number),
@@ -46,7 +46,7 @@ class BalancedDex(Balanced):
             )
             price = sicx_icx_price * sicx_baln_price * icx_usd_price
         elif Tokens.get_symbol_by_contract(token_contract) == "bnUSD":
-            print(f"Calculating bnUSD price in USD...")
+            print("Calculating bnUSD price in USD...")
             sicx_icx_price, sicx_bnusd, icx_usd_price = await asyncio.gather(
                 *[
                     cls._get_price_by_name("sICX/ICX", block_number=block_number),
@@ -56,7 +56,7 @@ class BalancedDex(Balanced):
             )
             price = (1 / sicx_bnusd) * sicx_icx_price * icx_usd_price
         elif Tokens.get_symbol_by_contract(token_contract) == "sICX":
-            print(f"Calculating sICX price in USD...")
+            print("Calculating sICX price in USD...")
             sicx_icx_price, icx_usd_price = await asyncio.gather(
                 *[
                     cls._get_price_by_name("sICX/ICX", block_number=block_number),

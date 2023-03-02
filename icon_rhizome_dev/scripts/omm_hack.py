@@ -1,4 +1,3 @@
-import requests
 
 addresses = [
     "hxc35cffe7c582cb313820fa6838dd357027ad3d07",

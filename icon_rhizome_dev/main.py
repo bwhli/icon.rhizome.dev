@@ -41,14 +41,20 @@ template_config = TemplateConfig(
 # Global template variables.
 template_config.engine_instance.engine.globals["BLOCK_TIME"] = BLOCK_TIME
 template_config.engine_instance.engine.globals["BLOCKS_1D"] = 172800
-template_config.engine_instance.engine.globals["NOW"] = int(NOW.timestamp())  # fmt: skip
+template_config.engine_instance.engine.globals["NOW"] = int(NOW.timestamp())
 template_config.engine_instance.engine.globals["YEAR"] = YEAR
 
 # Global template functions.
-template_config.engine_instance.engine.globals["format_asset_amount"] = Utils.format_asset_amount  # fmt: skip
-template_config.engine_instance.engine.globals["format_asset_symbol"] = Utils.format_asset_symbol  # fmt: skip
-template_config.engine_instance.engine.globals["format_number"] = Utils.format_number  # fmt: skip
-template_config.engine_instance.engine.globals["format_percentage"] = Utils.format_percentage  # fmt: skip
+template_config.engine_instance.engine.globals[
+    "format_asset_amount"
+] = Utils.format_asset_amount
+template_config.engine_instance.engine.globals[
+    "format_asset_symbol"
+] = Utils.format_asset_symbol
+template_config.engine_instance.engine.globals["format_number"] = Utils.format_number
+template_config.engine_instance.engine.globals[
+    "format_percentage"
+] = Utils.format_percentage
 
 
 @get("/", cache=2)

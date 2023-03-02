@@ -14,7 +14,7 @@ class BalancedController(Controller):
     A controller for routes relating to Balanced.
     """
 
-    path = f"/balanced"
+    path = "/balanced"
 
     @get(path="/")
     async def get_balanced(self) -> Template:

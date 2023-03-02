@@ -28,7 +28,9 @@ class Tracker:
         Args:
             address: An ICX address.
         """
-        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/addresses/details/{address}")  # fmt: skip
+        response = await HttpClient.get(
+            f"{TRACKER_API_ENDPOINT}/addresses/details/{address}"
+        )
         data = response.json()
         address_details = TrackerAddress(**data)
         return address_details
@@ -66,7 +68,7 @@ class Tracker:
         if method is not None:
             query_args.append(f"method={method}")
 
-        url = f"{TRACKER_API_ENDPOINT}/logs?limit={limit}&skip={skip}"  # fmt: skip
+        url = f"{TRACKER_API_ENDPOINT}/logs?limit={limit}&skip={skip}"
 
         if len(query_args) == 1:
             url = f"{url}&{query_args[0]}"
@@ -76,7 +78,7 @@ class Tracker:
         response = await HttpClient.get(url)
 
         if response.status_code == 200:
-            logs = [TrackerLog(**log) for log in response.json()]  # fmt: skip
+            logs = [TrackerLog(**log) for log in response.json()]
             return logs
         else:
             return None
@@ -89,7 +91,9 @@ class Tracker:
         Args:
             address: An ICX address.
         """
-        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}")  # fmt: skip
+        response = await HttpClient.get(
+            f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}"
+        )
         token_addresses = response.json()
         return token_addresses
 
@@ -147,7 +151,12 @@ class Tracker:
     @classmethod
     async def get_token_balances(cls, address: str, block_number: int = 0):
         token_addresses = await cls.get_token_addresses(address)
-        token_balances = await asyncio.gather(*[IcxAsync.get_token_balance(address, token_address) for token_address in token_addresses])  # fmt: skip
+        token_balances = await asyncio.gather(
+            *[
+                IcxAsync.get_token_balance(address, token_address)
+                for token_address in token_addresses
+            ]
+        )
         return token_balances
 
     @classmethod
@@ -165,7 +174,9 @@ class Tracker:
         Returns:
             int: Block height for the provided timestamp.
         """
-        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/blocks/timestamp/{timestamp * 1000000}/")  # fmt: skip
+        response = await HttpClient.get(
+            f"{TRACKER_API_ENDPOINT}/blocks/timestamp/{timestamp * 1000000}/"
+        )
 
         if response.status_code == 200:
             block = response.json()
@@ -177,7 +188,9 @@ class Tracker:
 
     @classmethod
     async def get_iscore_claimed(cls, tx_hash: str) -> int:
-        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/logs?transaction_hash={tx_hash}")  # fmt: skip
+        response = await HttpClient.get(
+            f"{TRACKER_API_ENDPOINT}/logs?transaction_hash={tx_hash}"
+        )
         data = response.json()
         log_data = json.loads(data[0]["data"])
         log_data = [int(v, 16) for v in log_data]
@@ -201,7 +214,9 @@ class Tracker:
         Args:
             tx_hash: An ICX transaction hash.
         """
-        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/transaction/details/{tx_hash}")  # fmt: skip
+        response = await HttpClient.get(
+            f"{TRACKER_API_ENDPOINT}/transaction/details/{tx_hash}"
+        )
         transaction = IcxTransaction(**response)
         return transaction
 
@@ -218,38 +233,30 @@ class Tracker:
         start_block_number: int = None,
         end_block_number: int = None,
         method: str = None,
+        get_all: bool = False,
     ) -> list[IcxTransaction]:
         """
         Returns a list of ICX transactions.
         """
-        # Build query parameters.
-        query_args = []
 
-        if limit is not None:
-            query_args.append(f"limit={limit}")
-        if skip is not None:
-            query_args.append(f"skip={skip}")
-        if sort is not None:
-            query_args.append(f"from={sort}")
-        if from_address is not None:
-            query_args.append(f"from={from_address}")
-        if to_address is not None:
-            query_args.append(f"to={to_address}")
-        if type is not None:
-            query_args.append(f"type={type}")
-        if block_number is not None:
-            query_args.append(f"block_number={block_number}")
-        if start_block_number is not None:
-            query_args.append(f"start_block_number={start_block_number}")
-        if end_block_number is not None:
-            query_args.append(f"end_block_number={end_block_number}")
-        if method is not None:
-            query_args.append(f"method={method}")
+        query_args = {}
+        query_args["limit"] = limit
+        query_args["skip"] = skip
+        query_args["sort"] = sort
+        query_args["from"] = from_address
+        query_args["to"] = to_address
+        query_args["type"] = type
+        query_args["block_number"] = block_number
+        query_args["start_block_number"] = start_block_number
+        query_args["end_block_number"] = end_block_number
+        query_args["method"] = method
 
         response = await HttpClient.get(cls._build_url("/transactions", query_args))
 
         if response.status_code == 200:
-            transactions = [IcxTransaction(**transaction) for transaction in response.json()]  # fmt: skip
+            transactions = [
+                IcxTransaction(**transaction) for transaction in response.json()
+            ]
             return transactions
         else:
             return None
@@ -280,13 +287,20 @@ class Tracker:
 
     @classmethod
     async def is_approved_voter(cls, address: str):
-        url = f"{TRACKER_API_ENDPOINT}/governance/delegations/{address}?skip=0&limit=100"  # fmt: skip
+        url = (
+            f"{TRACKER_API_ENDPOINT}/governance/delegations/{address}?skip=0&limit=100"
+        )
         response = await HttpClient.get(url)
         if response.status_code == 200:
             delegations = response.json()
-            total_delegation_value = sum([delegation["value"] for delegation in delegations])  # fmt: skip
+            total_delegation_value = sum(
+                [delegation["value"] for delegation in delegations]
+            )
             for delegation in delegations:
-                if delegation["prep_address"] == "hx4a43790d44b07909d20fbcc233548fc80f7a4067":  # fmt: skip
+                if (
+                    delegation["prep_address"]
+                    == "hx4a43790d44b07909d20fbcc233548fc80f7a4067"
+                ):
                     if delegation["value"] / total_delegation_value >= 0.2:
                         return True
         return False
@@ -299,3 +313,26 @@ class Tracker:
         elif len(query_args) > 1:
             url = f"{url}&{'&'.join(query_args)}"
         return url
+
+    @staticmethod
+    async def _get_iteration_count(url: str, limit: int):
+        path = url.strip(TRACKER_API_ENDPOINT)
+        await HttpClient.get(
+            f"https://tracker.v2.mainnet.sng.vultr.icon.community{path}"
+        )
+        return
+
+    @staticmethod
+    def _generate_query_string(query_args: dict[str, str]) -> str:
+        """
+        Returns a valid query string from a dict containing query key to query value mappings.
+
+        Args:
+            query_args: A dictionary of key, value mappings for the query string.
+        """
+        # Filter out query key, value pairs if value is None.
+        filted_query_args = {k: v for k, v in query_args.items() if v is not None}
+        query_string = "?" + "&".join(
+            [f"{k}={v}" for k, v in filted_query_args.items()]
+        )
+        return query_string

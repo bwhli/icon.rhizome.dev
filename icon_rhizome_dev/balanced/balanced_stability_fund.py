@@ -1,5 +1,4 @@
 from icon_rhizome_dev.balanced import Balanced
-from icon_rhizome_dev.tokens import Tokens
 
 
 class BalancedStabilityFund(Balanced):

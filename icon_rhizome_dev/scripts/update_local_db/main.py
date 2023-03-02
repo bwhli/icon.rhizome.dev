@@ -1,4 +1,3 @@
-import httpx
 
 
 async def main():

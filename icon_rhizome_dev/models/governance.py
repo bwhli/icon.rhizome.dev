@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-from icon_rhizome_dev.models import Result
 
 
 class Validator(BaseModel):
