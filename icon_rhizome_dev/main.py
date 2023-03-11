@@ -17,6 +17,7 @@ from starlite.contrib.jinja import JinjaTemplateEngine
 from icon_rhizome_dev import ENV
 from icon_rhizome_dev.constants import BLOCK_TIME, NOW, PROJECT_DIR, YEAR
 from icon_rhizome_dev.controllers.address import AddressController
+from icon_rhizome_dev.controllers.api.v1.quote import Api_QuoteController
 from icon_rhizome_dev.controllers.balanced import BalancedController
 from icon_rhizome_dev.controllers.governance import GovernanceController
 from icon_rhizome_dev.controllers.tools import ToolsController
@@ -77,6 +78,7 @@ app = Starlite(
         ToolsController,
         TransactionController,
         WebSocketController,
+        Api_QuoteController,
         home_handler,
     ],
     static_files_config=[

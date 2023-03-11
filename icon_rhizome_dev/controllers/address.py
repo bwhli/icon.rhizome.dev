@@ -3,7 +3,7 @@ import asyncio
 from starlite import Controller, Template, get
 
 from icon_rhizome_dev.balanced.balanced_loans import BalancedLoans
-from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.tracker import Tracker
 
 
@@ -18,8 +18,8 @@ class AddressController(Controller):
     async def get_address(self, address: str, block_number: int = 0) -> Template:
         (address_details, balance, delegations) = await asyncio.gather(
             Tracker.get_address_details(address),
-            IcxAsync.get_balance(address, in_icx=True),
-            IcxAsync.get_delegation(address, block_number=block_number),
+            Icx.get_balance(address, in_icx=True),
+            Icx.get_delegation(address, block_number=block_number),
         )
 
         return Template(

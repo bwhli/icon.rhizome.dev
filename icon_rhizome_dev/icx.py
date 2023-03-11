@@ -8,7 +8,7 @@ from icon_rhizome_dev.models.icx import IcxDelegation, IcxTokenMetadata, IcxVali
 from icon_rhizome_dev.utils import Utils
 
 
-class IcxAsync:
+class Icx:
 
     CHAIN_CONTRACT = "cx0000000000000000000000000000000000000000"
     GOVERNANCE_CONTRACT = "cx0000000000000000000000000000000000000001"
@@ -133,7 +133,7 @@ class IcxAsync:
         block_number: int = 0,
     ) -> int:
         params = {"_owner": address}
-        result = await IcxAsync.call(
+        result = await Icx.call(
             token_contract,
             "balanceOf",
             params,
@@ -147,7 +147,7 @@ class IcxAsync:
         token_contract: str,
         block_number: int = 0,
     ) -> int:
-        result = await IcxAsync.call(
+        result = await Icx.call(
             token_contract,
             "decimals",
             block_number=block_number,
@@ -162,7 +162,7 @@ class IcxAsync:
         block_number: int = 0,
     ) -> str:
         params = {"_owner": address}
-        result = await IcxAsync.call(
+        result = await Icx.call(
             token_contract,
             "name",
             params,
@@ -178,7 +178,7 @@ class IcxAsync:
         block_number: int = 0,
     ) -> str:
         params = {"_owner": address}
-        result = await IcxAsync.call(
+        result = await Icx.call(
             token_contract,
             "symbol",
             params,

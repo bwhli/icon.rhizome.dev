@@ -2,11 +2,12 @@ import csv
 import io
 from decimal import Decimal
 
-
 from icon_rhizome_dev.constants import EXA
 
 
 class Utils:
+    """"""
+
     def __init__(self) -> None:
         pass
 

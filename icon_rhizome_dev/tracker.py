@@ -5,7 +5,7 @@ import orjson
 
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http_client import HttpClient
-from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.icx import IcxTransaction
 from icon_rhizome_dev.models.tracker import (
     TrackerAddress,
@@ -153,7 +153,7 @@ class Tracker:
         token_addresses = await cls.get_token_addresses(address)
         token_balances = await asyncio.gather(
             *[
-                IcxAsync.get_token_balance(address, token_address)
+                Icx.get_token_balance(address, token_address)
                 for token_address in token_addresses
             ]
         )

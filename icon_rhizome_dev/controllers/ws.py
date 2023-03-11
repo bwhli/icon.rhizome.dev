@@ -3,7 +3,7 @@ import asyncio
 from starlite import Controller, WebSocket, WebsocketRouteHandler
 from starlite.exceptions import WebSocketDisconnect
 
-from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.utils import Utils
 
 
@@ -19,14 +19,14 @@ class WebSocketController(Controller):
     ) -> None:
         await socket.accept()
 
-        current_block = await IcxAsync.get_last_block(height_only=True)
+        current_block = await Icx.get_last_block(height_only=True)
 
         while True:
             try:
                 (
                     stale_block,
                     current_block,
-                ) = current_block, await IcxAsync.get_last_block(height_only=True)
+                ) = current_block, await Icx.get_last_block(height_only=True)
                 if current_block != stale_block:
                     data = f'<span id="block-height" hx-swap-oob="innerHTML">{Utils.format_number(current_block)}</span>'
                     await socket.send_text(data)

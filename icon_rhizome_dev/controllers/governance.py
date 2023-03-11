@@ -4,7 +4,7 @@ from pathlib import Path
 from starlite import Controller, Template, get
 
 from icon_rhizome_dev.constants import EXA, PROJECT_DIR
-from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.icx import IcxValidator
 from icon_rhizome_dev.tracker import Tracker
 
@@ -25,11 +25,11 @@ class GovernanceController(Controller):
 
         # If block number is negative, get current block and substract absolute value of "block_number" from it.
         if block_number < 0:
-            last_block_number = await IcxAsync.get_last_block(height_only=True)
+            last_block_number = await Icx.get_last_block(height_only=True)
             block_number = last_block_number - abs(block_number)
 
         if block_number < MIN_BLOCK_NUMBER:
-            last_block_number = await IcxAsync.get_last_block(height_only=True)
+            last_block_number = await Icx.get_last_block(height_only=True)
             block_number = last_block_number
 
         return block_number
@@ -47,10 +47,10 @@ class GovernanceController(Controller):
         block_number = await self.process_block_number(block_number)
 
         network_info, icx_usd_price, validators, cps_validators = await asyncio.gather(
-            IcxAsync.get_network_info(block_number=block_number),
-            IcxAsync.get_icx_usd_price(block_number=block_number),
-            IcxAsync.get_validators(block_number=block_number),
-            IcxAsync.get_cps_validator_addresses(block_number=block_number),
+            Icx.get_network_info(block_number=block_number),
+            Icx.get_icx_usd_price(block_number=block_number),
+            Icx.get_validators(block_number=block_number),
+            Icx.get_cps_validator_addresses(block_number=block_number),
         )
 
         total_power = network_info["totalPower"] / EXA
@@ -107,7 +107,7 @@ class GovernanceController(Controller):
         block_number: int = 0,
     ) -> Template:
         block_number = await self.process_block_number(block_number)
-        network_info = await IcxAsync.get_network_info(block_number)
+        network_info = await Icx.get_network_info(block_number)
         return Template(
             name="governance/htmx/overview.html",
             context={
@@ -223,7 +223,7 @@ class GovernanceController(Controller):
         self,
         hostname: str | None = None,
     ) -> Template:
-        node_status = await IcxAsync.get_node_status(hostname)
+        node_status = await Icx.get_node_status(hostname)
         return Template(
             name="governance/htmx/node_status_check_result.html",
             context={"result": node_status},

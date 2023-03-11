@@ -10,7 +10,7 @@ from starlite import Body, Controller, RequestEncodingType, Template, get, post
 from icon_rhizome_dev.balanced import Balanced
 from icon_rhizome_dev.balanced.balanced_dex import BalancedDex, BalancedDividendClaim
 from icon_rhizome_dev.constants import SM_DISCORD_ADDRESSES
-from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.icx import IcxTransaction
 from icon_rhizome_dev.s3 import S3
 from icon_rhizome_dev.tracker import Tracker
@@ -283,7 +283,7 @@ class ToolsController(Controller):
 
                 iscore_claimed, icx_usd_price = await asyncio.gather(
                     Tracker.get_iscore_claimed(tx_hash),
-                    IcxAsync.get_icx_usd_price(block_number),
+                    Icx.get_icx_usd_price(block_number),
                 )
 
                 transaction_date = datetime.utcfromtimestamp(

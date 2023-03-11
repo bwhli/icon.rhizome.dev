@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.icx import Icx
 
 
 class BalancedDividendClaim(BaseModel):
@@ -14,7 +14,7 @@ class BalancedDividendClaim(BaseModel):
     timestamp: datetime
 
 
-class Balanced(IcxAsync):
+class Balanced(Icx):
 
     CONTRACT_BALANCED_DEX = "cxa0af3165c08318e988cb30993b3048335b94af6c"
     CONTRACT_BALANCED_DIVIDENDS = "cx203d9cd2a669be67177e997b8948ce2c35caffae"

@@ -5,7 +5,7 @@ from starlite import Controller, Template, get
 
 from icon_rhizome_dev.balanced import Balanced
 from icon_rhizome_dev.balanced.balanced_stability_fund import BalancedStabilityFund
-from icon_rhizome_dev.icx_async import IcxAsync
+from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.tokens import Tokens
 
 
@@ -40,7 +40,7 @@ class BalancedController(Controller):
 
         # Fetch balance for each token.
         async def _fetch_token_balance(token_contract: str):
-            token_balance = await IcxAsync.get_token_balance(
+            token_balance = await Icx.get_token_balance(
                 Balanced.CONTRACT_BALANCED_PEG_STABILITY,
                 token_contract,
                 block_number=block_number,
