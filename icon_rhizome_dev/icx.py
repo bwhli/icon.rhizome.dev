@@ -12,7 +12,7 @@ class Icx:
 
     CHAIN_CONTRACT = "cx0000000000000000000000000000000000000000"
     GOVERNANCE_CONTRACT = "cx0000000000000000000000000000000000000001"
-    ICON_API_ENDPOINT = "https://api.icon.community"
+    ICON_API_ENDPOINT = "https://ctz.solidwallet.io"
 
     def __init__(self) -> None:
         pass
