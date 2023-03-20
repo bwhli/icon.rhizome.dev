@@ -199,7 +199,8 @@ class ToolsController(Controller):
     @get(path="/cps-treasury-claims/")
     async def get_cps_treasury_claims(self, address: str) -> list:
         claims = await Tracker.get_token_transfers(
-            "cxd965531d1cce5daad1d1d3ee1efb39ce68f442fc", address
+            from_address="cxd965531d1cce5daad1d1d3ee1efb39ce68f442fc",
+            to_address=address,
         )
         return claims
 

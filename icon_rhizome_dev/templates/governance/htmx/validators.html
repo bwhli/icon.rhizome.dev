@@ -59,8 +59,7 @@
 
                     ]
                 %}
-                <th id="validator-{{ key }}"
-                    class="whitespace-nowrap {% if key == 'cps' %}p-2{% else %}px-3 py-2{% endif %}"
+                <th id="validator-{{ key }}" class="whitespace-nowrap px-3 py-2"
                     hx-get="/governance/htmx/validators/column/{{ key }}/?block_number={{ block_number }}"
                     hx-trigger="every {{ swap_freq }}s" hx-swap="none" {{ hx_disable }}>
                     <div class="flex {% if key == 'cps' %}justify-center{% else %}justify-between{% endif %}">
