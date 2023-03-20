@@ -1,6 +1,6 @@
 FROM python:3.11-buster as venv
 
-ENV POETRY_VERSION=1.3.2
+ENV POETRY_VERSION=1.4.1
 RUN curl -sSL https://install.python-poetry.org | python
 
 WORKDIR /app
