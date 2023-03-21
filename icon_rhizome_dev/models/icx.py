@@ -1,4 +1,5 @@
-import orjson
+import json
+
 from pydantic import BaseModel, root_validator, validator
 
 from icon_rhizome_dev.constants import EXA
@@ -72,7 +73,7 @@ class IcxTransaction(BaseModel):
     @validator("data")
     def validate_data(cls, v: str) -> dict:
         try:
-            v = orjson.loads(v)
+            v = json.loads(v)
             return v
         except ValueError:
             return None

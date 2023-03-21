@@ -1,8 +1,6 @@
 import asyncio
 import json
 
-import orjson
-
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http_client import HttpClient
 from icon_rhizome_dev.icx import Icx
@@ -267,7 +265,7 @@ class Tracker:
         REDIS_KEY = "VALIDATOR_NODE_HOSTNAMES"
         cached_data = await RedisClient.get(REDIS_KEY)
         if cached_data is not None:
-            return orjson.loads(cached_data)
+            return json.loads(cached_data)
 
         # Fetch data from Tracker API if there is no cached data.
         url = f"{TRACKER_API_ENDPOINT}/governance/preps"
@@ -282,7 +280,7 @@ class Tracker:
         }
 
         # Store data in Redis for 3600s.
-        await RedisClient.set(REDIS_KEY, orjson.dumps(hostnames), 3600)
+        await RedisClient.set(REDIS_KEY, json.dumps(hostnames), 3600)
         return hostnames
 
     @classmethod

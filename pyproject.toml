@@ -12,7 +12,6 @@ iconsdk = "^2.2.0"
 python-dotenv = "^0.21.0"
 jinja2-fragments = "^0.3.0"
 httpx = "^0.23.1"
-orjson = "^3.8.3"
 starlite = {extras = ["brotli", "redis"], version = "^1.49.0"}
 boto3 = "^1.26.49"
 pandas = "^1.5.2"
