@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, root_validator, validator
 
+from icon_rhizome_dev.models import Result
 from icon_rhizome_dev.utils import Utils
 
 
@@ -77,3 +78,34 @@ class TrackerTokenTransfer(BaseModel):
         values["value"] = Utils.hex_to_int(values["value"])
         values["transaction_fee"] = Utils.hex_to_int(values["transaction_fee"])
         return values
+
+
+class TrackerTransaction(BaseModel):
+    hash: str
+    log_index: int
+    type: str
+    method: str
+    from_address: str
+    to_address: str
+    block_number: int
+    log_count: int
+    version: str
+    value: str
+    value_decimal: float
+    step_limit: str
+    timestamp: int
+    block_timestamp: int
+    nid: str
+    nonce: str
+    transaction_index: int
+    block_hash: str
+    transaction_fee: str
+    signature: str
+    data_type: str
+    data: str
+    cumulative_step_used: str
+    step_used: str
+    step_price: str
+    score_address: str
+    logs_bloom: str
+    status: str

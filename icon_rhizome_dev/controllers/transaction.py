@@ -1,7 +1,12 @@
-from starlite import Controller, get
+import asyncio
+
+from starlite import Controller, get, post
 
 from icon_rhizome_dev.constants import API_PREFIX, BLOCK_TIME
+from icon_rhizome_dev.icx import Icx
+from icon_rhizome_dev.icx_utils import IcxUtils
 from icon_rhizome_dev.models.icx import IcxTransaction
+from icon_rhizome_dev.models.tracker import TrackerTransaction
 from icon_rhizome_dev.tracker import Tracker
 
 
@@ -22,6 +27,28 @@ class TransactionController(Controller):
         """
         transaction = await Tracker.get_transaction(tx_hash)
         return transaction
+
+    @post(path="/calculate-usd-value/")
+    async def calculate_usd_value(self, data: dict[str, list[str]]) -> dict[str, float]:
+        """
+        Calculates USD value of ICX transactions.
+        """
+        results = {}
+        transaction_hashes = data["transaction_hashes"]
+
+        async def _process(transaction_hash: str):
+            transaction: TrackerTransaction = await Tracker.get_transaction(transaction_hash)  # fmt: skip
+            icx_usd_price = await Icx.get_icx_usd_price(transaction.block_number)
+            results[transaction_hash] = {
+                "icx_amount": transaction.value_decimal,
+                "usd_value": transaction.value_decimal * icx_usd_price,
+            }
+
+        await asyncio.gather(
+            *[_process(transaction_hash) for transaction_hash in transaction_hashes]
+        )
+
+        return results
 
     @get(path="/", cache=BLOCK_TIME)
     async def get_transactions(

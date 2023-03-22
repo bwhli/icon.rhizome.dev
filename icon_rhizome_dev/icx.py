@@ -83,7 +83,7 @@ class Icx:
         return validators
 
     @classmethod
-    async def get_icx_usd_price(cls, block_number: int = 0):
+    async def get_icx_usd_price(cls, block_number: int = 0) -> float:
         """
         Returns the ICX/USD price.
 

@@ -4,11 +4,11 @@ import json
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http_client import HttpClient
 from icon_rhizome_dev.icx import Icx
-from icon_rhizome_dev.models.icx import IcxTransaction
 from icon_rhizome_dev.models.tracker import (
     TrackerAddress,
     TrackerLog,
     TrackerTokenTransfer,
+    TrackerTransaction,
 )
 from icon_rhizome_dev.redis_client import RedisClient
 
@@ -44,7 +44,7 @@ class Tracker:
         end_block_number: int = None,
         tx_hash: str = None,
         method: str = None,
-    ) -> list[IcxTransaction]:
+    ) -> list[TrackerTransaction]:
         """
         Returns a list of ICX transactions.
         """
@@ -205,17 +205,15 @@ class Tracker:
         return api_endpoint
 
     @classmethod
-    async def get_transaction(cls, tx_hash: str) -> IcxTransaction:
+    async def get_transaction(cls, tx_hash: str) -> TrackerTransaction:
         """
         Returns details about an ICX transaction.
 
         Args:
             tx_hash: An ICX transaction hash.
         """
-        response = await HttpClient.get(
-            f"{TRACKER_API_ENDPOINT}/transaction/details/{tx_hash}"
-        )
-        transaction = IcxTransaction(**response)
+        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/transactions/details/{tx_hash}")  # fmt: skip
+        transaction = TrackerTransaction(**response.json())
         return transaction
 
     @classmethod
@@ -232,7 +230,7 @@ class Tracker:
         end_block_number: int = None,
         method: str = None,
         get_all: bool = False,
-    ) -> list[IcxTransaction]:
+    ) -> list[TrackerTransaction]:
         """
         Returns a list of ICX transactions.
         """
@@ -253,7 +251,7 @@ class Tracker:
 
         if response.status_code == 200:
             transactions = [
-                IcxTransaction(**transaction) for transaction in response.json()
+                TrackerTransaction(**transaction) for transaction in response.json()
             ]
             return transactions
         else:
