@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from starlite import Controller, get, post
 
@@ -15,7 +16,7 @@ class TransactionController(Controller):
     A controller for routes relating to ICX transactions.
     """
 
-    path = f"{API_PREFIX}/transactions"
+    path = f"/transactions"
 
     @get(path="/{tx_hash:str}/", cache=BLOCK_TIME)
     async def get_transaction(self, tx_hash: str) -> IcxTransaction:
@@ -33,22 +34,28 @@ class TransactionController(Controller):
         """
         Calculates USD value of ICX transactions.
         """
-        results = {}
+        results = []
         transaction_hashes = data["transaction_hashes"]
 
         async def _process(transaction_hash: str):
             transaction: TrackerTransaction = await Tracker.get_transaction(transaction_hash)  # fmt: skip
             icx_usd_price = await Icx.get_icx_usd_price(transaction.block_number)
-            results[transaction_hash] = {
-                "icx_amount": transaction.value_decimal,
-                "usd_value": transaction.value_decimal * icx_usd_price,
-            }
+            results.append(
+                {
+                    "tx_hash": transaction_hash,
+                    "timestamp": datetime.utcfromtimestamp(
+                        transaction.block_timestamp / 1_000_000
+                    ),
+                    "icx_amount": transaction.value_decimal,
+                    "usd_value": transaction.value_decimal * icx_usd_price,
+                }
+            )
 
         await asyncio.gather(
             *[_process(transaction_hash) for transaction_hash in transaction_hashes]
         )
 
-        return results
+        return sorted(results, key=lambda x: x["timestamp"])
 
     @get(path="/", cache=BLOCK_TIME)
     async def get_transactions(

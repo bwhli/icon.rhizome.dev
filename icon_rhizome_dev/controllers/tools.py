@@ -5,7 +5,16 @@ from datetime import datetime, timezone
 import pandas as pd
 from pydantic import BaseModel, ValidationError, validator
 from rich import print
-from starlite import Body, Controller, RequestEncodingType, Template, get, post
+from starlite import (
+    Body,
+    Controller,
+    RequestEncodingType,
+    Template,
+    get,
+    post,
+    status_codes,
+)
+from starlite.exceptions import HTTPException
 
 from icon_rhizome_dev.balanced import Balanced
 from icon_rhizome_dev.balanced.balanced_dex import BalancedDex, BalancedDividendClaim
@@ -22,7 +31,7 @@ class ToolsController(Controller):
     A controller for routes relating to ICX transactions.
     """
 
-    path = "/tools"
+    path = f"/tools"
 
     class IcxStakingRewardsExporterFormData(BaseModel):
         icxAddress: str

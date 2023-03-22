@@ -1,6 +1,9 @@
 import asyncio
 import json
 
+from starlite import status_codes
+from starlite.exceptions import HTTPException
+
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http_client import HttpClient
 from icon_rhizome_dev.icx import Icx
@@ -167,14 +170,16 @@ class Tracker:
         Returns block height for the provided timestamp.
 
         Args:
-            timestamp (int): Unix timestamp in seconds (must be greater than 1516819217)
+            timestamp (int): Unix timestamp in microseconds.
 
         Returns:
             int: Block height for the provided timestamp.
         """
         response = await HttpClient.get(
-            f"{TRACKER_API_ENDPOINT}/blocks/timestamp/{timestamp * 1000000}/"
+            f"{TRACKER_API_ENDPOINT}/blocks/timestamp/{timestamp}/"
         )
+
+        print(response.json())
 
         if response.status_code == 200:
             block = response.json()
