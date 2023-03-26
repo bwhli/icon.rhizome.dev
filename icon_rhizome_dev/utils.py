@@ -3,6 +3,7 @@ import io
 from decimal import Decimal
 
 from icon_rhizome_dev.constants import EXA
+from icon_rhizome_dev.http_client import HttpClient
 
 
 class Utils:
@@ -47,6 +48,13 @@ class Utils:
         return csv_buffer
 
     @staticmethod
+    async def get_ipfs_content(ipfs_hash: str):
+        url = f"https://{ipfs_hash}.ipfs.cf-ipfs.com"
+        r = await HttpClient.get(url)
+        data = r.json()
+        return data
+
+    @staticmethod
     def int_to_string(
         value: int,
         decimals: int = 4,
@@ -74,13 +82,10 @@ class Utils:
 
     @staticmethod
     def format_number(value: float | int, decimal_places: int = 4) -> str:
-
         if float(value) == int(value):
             value = int(value)
-
         if decimal_places == 0:
             value = int(value)
-
         if isinstance(value, int):
             return f"{value:,}"
         else:
