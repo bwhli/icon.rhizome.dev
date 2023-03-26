@@ -14,18 +14,14 @@ class Utils:
 
     @staticmethod
     def format_asset_amount(
-        amount: int,
-        symbol: str,
+        amount: Decimal | int,
         decimal_places: int = 4,
     ) -> str:
-        decimals = {
-            "bnusd": 18,
-            "btcb": 18,
-            "eth": 18,
-            "sicx": 18,
-        }
-        amount = amount / 10 ** decimals[symbol]
-        amount_str = f"{amount:,.{decimal_places}f}".rstrip("0")
+
+        if isinstance(amount, int) is True:
+            amount_str = f"{amount:,.0f}"
+        else:
+            amount_str = f"{amount:,.{decimal_places}f}".rstrip("0")
         return amount_str
 
     @staticmethod
@@ -48,11 +44,17 @@ class Utils:
         return csv_buffer
 
     @staticmethod
-    async def get_ipfs_content(ipfs_hash: str):
+    async def get_ipfs_content(ipfs_hash: str) -> dict | str:
         url = f"https://{ipfs_hash}.ipfs.cf-ipfs.com"
         r = await HttpClient.get(url)
         data = r.json()
         return data
+
+    @staticmethod
+    def get_validator_name_from_address(address: str) -> str:
+        if address == "hx2e7db537ca3ff73336bee1bab4cf733a94ae769b":
+            return "Eye on ICON"
+        return "UNKNOWN"
 
     @staticmethod
     def int_to_string(

@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 
 {% block container %}
-<div id="container" class="xl:gap-4 flex flex-col w-full max-w-3xl gap-2">
-
+<div id="container" class="xl:gap-4 flex flex-col w-full max-w-3xl gap-2 py-16 mx-auto">
     <style>
         #description p {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        #description ul {
+            margin-bottom: 1.5rem;
+        }
+        #description li {
+            list-style-type: disc;
+            margin-left: 2rem;
         }
         #description h1 {
             font-size: 2rem;
@@ -27,8 +33,39 @@
             font-weight: bold;
             margin-top: 2rem;
         }
+        #description .table {
+            display: block;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            overflow: scroll;
+        }
+        #description td, #description th {
+            border: 1px solid #374151;
+            padding: 0.5rem 1rem;
+            white-space: nowrap;
+        }
     </style>
-
+    <header class="flex flex-col gap-1">
+        <h1 class="text-4xl font-bold">{{ proposal_details["project_title"] }}</h1>
+        <p class="font-mono text-gray-400">{{ proposal_details["ipfs_hash"] }}</p>
+    </header>
+    <div class="flex gap-4">
+        <div class="grow p-4 bg-gray-900 border-2 border-gray-800 rounded-md">
+            <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Req. Budget</h2>
+            <p class="whitespace-nowrap xl:text-2xl text-xl">
+                {{ format_asset_amount(proposal_details["total_budget"]) }} {{ proposal_details["token"] }}</p>
+        </div>
+        <div class="grow p-4 bg-gray-900 border-2 border-gray-800 rounded-md">
+            <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Duration</h2>
+            <p class="whitespace-nowrap xl:text-2xl text-xl">
+                {{ proposal_details["project_duration"] }} Months</p>
+        </div>
+        <div class="grow p-4 bg-gray-900 border-2 border-gray-800 rounded-md">
+            <h2 class="whitespace-nowrap text-sm font-bold text-gray-400 uppercase">Sponsor</h2>
+            <p class="whitespace-nowrap xl:text-2xl text-xl">
+                {{ get_validator_name_from_address(proposal_details["sponsor_address"]) }}</p>
+        </div>
+    </div>
     <div id="description">
         {{ proposal_description | safe }}
     </div>
