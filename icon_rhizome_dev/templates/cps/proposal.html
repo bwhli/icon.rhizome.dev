@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block container %}
+<div id="container" class="xl:gap-4 flex flex-col w-full max-w-3xl gap-2">
+
+    <style>
+        #description p {
+            margin-bottom: 1.2rem;
+        }
+        #description h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 2rem;
+        }
+        #description h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-top: 2rem;
+        }
+        #description h3 {
+            font-size: 1.625rem;
+            font-weight: bold;
+            margin-top: 2rem;
+        }
+        #description h4 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 2rem;
+        }
+    </style>
+
+    <div id="description">
+        {{ proposal_description | safe }}
+    </div>
+</div>
+{% endblock %}
