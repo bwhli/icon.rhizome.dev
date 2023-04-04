@@ -1,11 +1,13 @@
+import json
+
 from pydantic import BaseModel
+
+from icon_rhizome_dev.models.icx import Irc2Token
+from icon_rhizome_dev.redis_client import RedisClient
+from icon_rhizome_dev.tracker import Tracker
 
 
 class Tokens:
-    class Irc2Token(BaseModel):
-        contract: str
-        symbol: str
-        decimals: int
 
     TOKENS = {
         "cxf61cd5a45dc9f91c15aa65831a30a90d59a09619": Irc2Token(
@@ -42,6 +44,16 @@ class Tokens:
 
     def __init__(self) -> None:
         pass
+
+    @classmethod
+    async def get_token_metadata(cls, contract_address: str) -> Irc2Token:
+        contract_details = await Tracker.get_contract_details(contract_address)
+        token_metadata = Irc2Token(
+            contract=contract_address,
+            symbol=contract_details.symbol,
+            decimals=contract_details.decimals,
+        )
+        return token_metadata
 
     @classmethod
     def get_decimals_by_contract(cls, contract: str) -> int:

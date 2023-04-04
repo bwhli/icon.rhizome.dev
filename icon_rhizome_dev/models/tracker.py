@@ -32,6 +32,40 @@ class TrackerAddress(BaseModel):
     type: str
 
 
+class TrackerContractDetails(BaseModel):
+    abi: list
+    address: str
+    audit_tx_hash: str | None = None
+    code_hash: str | None = None
+    contract_type: str
+    created_block: int | None = None
+    creation_hash: str | None = None
+    created_timestamp: int | None = None
+    current_version: str | None = None
+    decimals: int
+    deploy_tx_hash: str | None = None
+    email: str | None = None
+    is_nft: bool
+    is_token: bool
+    last_updated_block: int | None = None
+    last_updated_timestamp: int | None = None
+    name: str
+    owner_address: str
+    revision_number: int
+    source_code_link: str | None = None
+    status: str
+    symbol: str | None = None
+    token_standard: str
+    verified: bool
+    verified_source_code_link: str | None = None
+    website: str | None = None
+
+    @root_validator(pre=True)
+    def root_validator(cls, values: dict) -> dict:
+        values["decimals"] = Utils.hex_to_int(values["decimals"])
+        return values
+
+
 class TrackerLog(BaseModel):
     transaction_hash: str
     log_index: int

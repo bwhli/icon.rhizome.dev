@@ -177,3 +177,9 @@ class IcxValidator(BaseModel):
             return "UNBLOCK"
         else:
             return value
+
+
+class Irc2Token(BaseModel):
+    contract: str
+    symbol: str
+    decimals: int

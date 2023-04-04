@@ -1,6 +1,5 @@
-from typing import Any
-
 import redis.asyncio as redis
+from rich import inspect
 
 from icon_rhizome_dev import ENV
 
@@ -13,7 +12,7 @@ class RedisClient:
     async def set(
         cls,
         key: str,
-        value: Any,
+        value: str,
         ttl: int = None,
     ) -> None:
         r = await redis.from_url(ENV["REDIS_DB_URL"])
@@ -24,7 +23,7 @@ class RedisClient:
         return
 
     @classmethod
-    async def get(cls, key: str) -> Any:
+    async def get(cls, key: str) -> str:
         r = await redis.from_url(ENV["REDIS_DB_URL"])
         result = await r.get(key)
         return result

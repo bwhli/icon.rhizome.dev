@@ -1,9 +1,11 @@
 import asyncio
 
+from pydantic import BaseModel
 from starlite import Controller, Template, get
 
 from icon_rhizome_dev.balanced.balanced_loans import BalancedLoans
 from icon_rhizome_dev.icx import Icx
+from icon_rhizome_dev.tokens import Tokens
 from icon_rhizome_dev.tracker import Tracker
 
 
@@ -32,6 +34,50 @@ class AddressController(Controller):
                     "balance": balance,
                     "delegations": delegations,
                 },
+            },
+        )
+
+    @get(path="/htmx/assets/{address:str}/")
+    async def get_htmx_address_assets(self, address: str) -> Template:
+
+        # Model that represents a row in the Assets table.
+        class AssetRow(BaseModel):
+            name: str
+            symbol: str
+            amount: float
+            price_in_usd: float
+            contract_address: str | None = None
+
+        # Fetch ICX balance and ICX/USD price.
+        icx_balance = await Icx.get_balance(address, in_icx=True)
+        icx_price_in_usd = await Icx.get_icx_usd_price()
+
+        # Get tokens owned by address.
+        token_contract_addresses = await Tracker.get_token_addresses(address)
+
+        assets = await asyncio.gather(
+            *[
+                Tokens.get_token_metadata(token_contract_address)
+                for token_contract_address in token_contract_addresses
+            ]
+        )
+
+        # Add ICX to assets list.
+        assets.append(
+            AssetRow(
+                name="ICON",
+                symbol="ICX",
+                amount=icx_balance,
+                price_in_usd=icx_price_in_usd,
+            )
+        )
+
+        # Add IRC-2 tokens to assets list.
+
+        return Template(
+            name="address/htmx/address_assets.html",
+            context={
+                "data": {"assets": assets},
             },
         )
 

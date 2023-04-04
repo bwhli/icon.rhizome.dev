@@ -9,6 +9,7 @@ from icon_rhizome_dev.http_client import HttpClient
 from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.tracker import (
     TrackerAddress,
+    TrackerContractDetails,
     TrackerLog,
     TrackerTokenTransfer,
     TrackerTransaction,
@@ -29,12 +30,18 @@ class Tracker:
         Args:
             address: An ICX address.
         """
-        response = await HttpClient.get(
-            f"{TRACKER_API_ENDPOINT}/addresses/details/{address}"
-        )
-        data = response.json()
+        r = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/addresses/details/{address}")
+        data = r.json()
+        print(data)
         address_details = TrackerAddress(**data)
         return address_details
+
+    @classmethod
+    async def get_contract_details(cls, contract_address: str):
+        r = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/contracts/{contract_address}")
+        data = r.json()
+        contract_details = TrackerContractDetails(**data)
+        return contract_details
 
     @classmethod
     async def get_logs(
@@ -76,10 +83,10 @@ class Tracker:
         elif len(query_args) > 1:
             url = f"{url}&{'&'.join(query_args)}"
 
-        response = await HttpClient.get(url)
+        r = await HttpClient.get(url)
 
-        if response.status_code == 200:
-            logs = [TrackerLog(**log) for log in response.json()]
+        if r.status_code == 200:
+            logs = [TrackerLog(**log) for log in r.json()]
             return logs
         else:
             return None
@@ -92,10 +99,8 @@ class Tracker:
         Args:
             address: An ICX address.
         """
-        response = await HttpClient.get(
-            f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}"
-        )
-        token_addresses = response.json()
+        r = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/addresses/token-addresses/{address}")  # fmt: skip
+        token_addresses = r.json()
         return token_addresses
 
     @classmethod
@@ -136,29 +141,17 @@ class Tracker:
         if transaction_hash is not None:
             query_args.append(f"transaction_hash={transaction_hash}")
 
-        response = await HttpClient.get(
+        r = await HttpClient.get(
             cls._build_url("/transactions/token-transfers", query_args)
         )
 
-        if response.status_code == 200:
+        if r.status_code == 200:
             token_transfers = [
-                TrackerTokenTransfer(**token_transfer)
-                for token_transfer in response.json()
+                TrackerTokenTransfer(**token_transfer) for token_transfer in r.json()
             ]
             return token_transfers
         else:
             return []
-
-    @classmethod
-    async def get_token_balances(cls, address: str, block_number: int = 0):
-        token_addresses = await cls.get_token_addresses(address)
-        token_balances = await asyncio.gather(
-            *[
-                Icx.get_token_balance(address, token_address)
-                for token_address in token_addresses
-            ]
-        )
-        return token_balances
 
     @classmethod
     async def get_block_from_timestamp(
@@ -175,14 +168,14 @@ class Tracker:
         Returns:
             int: Block height for the provided timestamp.
         """
-        response = await HttpClient.get(
+        r = await HttpClient.get(
             f"{TRACKER_API_ENDPOINT}/blocks/timestamp/{timestamp}/"
         )
 
-        print(response.json())
+        print(r.json())
 
-        if response.status_code == 200:
-            block = response.json()
+        if r.status_code == 200:
+            block = r.json()
             if block_number_only is True:
                 return block["number"]
             return block
@@ -191,10 +184,10 @@ class Tracker:
 
     @classmethod
     async def get_iscore_claimed(cls, tx_hash: str) -> int:
-        response = await HttpClient.get(
+        r = await HttpClient.get(
             f"{TRACKER_API_ENDPOINT}/logs?transaction_hash={tx_hash}"
         )
-        data = response.json()
+        data = r.json()
         log_data = json.loads(data[0]["data"])
         log_data = [int(v, 16) for v in log_data]
         iscore_claimed = int(log_data[0])
@@ -217,8 +210,8 @@ class Tracker:
         Args:
             tx_hash: An ICX transaction hash.
         """
-        response = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/transactions/details/{tx_hash}")  # fmt: skip
-        transaction = TrackerTransaction(**response.json())
+        r = await HttpClient.get(f"{TRACKER_API_ENDPOINT}/transactions/details/{tx_hash}")  # fmt: skip
+        transaction = TrackerTransaction(**r.json())
         return transaction
 
     @classmethod
@@ -252,11 +245,11 @@ class Tracker:
         query_args["end_block_number"] = end_block_number
         query_args["method"] = method
 
-        response = await HttpClient.get(cls._build_url("/transactions", query_args))
+        r = await HttpClient.get(cls._build_url("/transactions", query_args))
 
-        if response.status_code == 200:
+        if r.status_code == 200:
             transactions = [
-                TrackerTransaction(**transaction) for transaction in response.json()
+                TrackerTransaction(**transaction) for transaction in r.json()
             ]
             return transactions
         else:
@@ -291,9 +284,9 @@ class Tracker:
         url = (
             f"{TRACKER_API_ENDPOINT}/governance/delegations/{address}?skip=0&limit=100"
         )
-        response = await HttpClient.get(url)
-        if response.status_code == 200:
-            delegations = response.json()
+        r = await HttpClient.get(url)
+        if r.status_code == 200:
+            delegations = r.json()
             total_delegation_value = sum(
                 [delegation["value"] for delegation in delegations]
             )
