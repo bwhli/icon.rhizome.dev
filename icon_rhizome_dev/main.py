@@ -13,6 +13,7 @@ from starlite.cache.redis_cache_backend import (
 )
 from starlite.config import CompressionConfig
 from starlite.contrib.jinja import JinjaTemplateEngine
+from starlite.plugins.piccolo_orm import PiccoloORMPlugin
 
 from icon_rhizome_dev import ENV
 from icon_rhizome_dev.constants import BLOCK_TIME, NOW, PROJECT_DIR, YEAR
@@ -67,7 +68,11 @@ def home_handler(request: Request) -> Template:
 # Initialize Starlite app.
 app = Starlite(
     cache_config=cache_config,
-    compression_config=CompressionConfig(backend="brotli", brotli_gzip_fallback=True),
+    compression_config=CompressionConfig(
+        backend="brotli",
+        brotli_gzip_fallback=True,
+    ),
+    plugins=[PiccoloORMPlugin()],
     route_handlers=[
         AddressController,
         BalancedController,

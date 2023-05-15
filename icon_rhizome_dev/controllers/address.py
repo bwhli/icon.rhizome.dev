@@ -62,14 +62,17 @@ class AddressController(Controller):
             ]
         )
 
+        assets = sorted(assets, key=lambda p: p.symbol)
+
         # Add ICX to assets list.
-        assets.append(
+        assets.insert(
+            0,
             AssetRow(
                 name="ICON",
                 symbol="ICX",
                 amount=icx_balance,
                 price_in_usd=icx_price_in_usd,
-            )
+            ),
         )
 
         # Add IRC-2 tokens to assets list.

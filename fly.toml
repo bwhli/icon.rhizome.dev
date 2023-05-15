@@ -1,42 +1,28 @@
-# fly.toml file generated for icon-rhizome-dev on 2023-01-15T20:06:13+09:00
+# fly.toml app configuration file generated for icon-rhizome-dev on 2023-04-26T20:07:50+09:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
 app = "icon-rhizome-dev"
-kill_signal = "SIGINT"
-kill_timeout = 5
-processes = []
+primary_region = "nrt"
 
-[env]
-
-[experimental]
-  allowed_public_ports = []
-  auto_rollback = true
-
-[[services]]
-  http_checks = []
+[http_service]
   internal_port = 8080
-  processes = ["app"]
-  protocol = "tcp"
-  script_checks = []
-  [services.concurrency]
-    hard_limit = 100
-    soft_limit = 80
-    type = "requests"
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
 
-  [[services.ports]]
-    force_https = true
-    handlers = ["http"]
-    port = 80
-
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
-
-  [[services.tcp_checks]]
-    grace_period = "5s"
-    interval = "15s"
-    restart_limit = 0
-    timeout = "2s"
-
+[checks]
+  [checks.http_check]
+    grace_period = "8s"
+    interval = "2s"
+    method = "get"
+    path = "/"
+    port = 8080
+    timeout = "5s"
+    type = "http"
+    
 [[statics]]
   guest_path = "/icon_rhizome_dev/static"
   url_prefix = "/static"
