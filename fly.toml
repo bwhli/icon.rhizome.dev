@@ -11,7 +11,6 @@ primary_region = "nrt"
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
-  min_machines_running = 1
 
 [checks]
   [checks.http_check]
