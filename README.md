@@ -11,4 +11,4 @@ This project implements a governance tracker for the ICON network.
 
 ## How to Deploy
 
-A Dockerfile is included with the project for deployment to any cloud platform that supports Docker images. For easy deployment to Fly.io, a `fly.toml` is included as well – just run `flyctl launch`.
+A Dockerfile is included with the project for deployment to any cloud platform that supports Docker images. For easy deployment to [Fly.io](https://fly.io), a `fly.toml` is included as well – just run `flyctl launch`.
