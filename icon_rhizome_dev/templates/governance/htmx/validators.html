@@ -21,7 +21,7 @@
             <div id="block-rewind-buttons" class="flex hidden grid-cols-2 gap-2">
                 {% for days, blocks in [(60, BLOCKS_1D * 60), (30, BLOCKS_1D * 30), (14, BLOCKS_1D * 14), (7, BLOCKS_1D * 7), (1, BLOCKS_1D * 1)] %}
                 <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
-                    hx-get="/governance/htmx/validators/?block_number=-{{ blocks }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+                    hx-get="/htmx/validators/?block_number=-{{ blocks }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
                     hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
             on htmx:afterRequest remove @hx-trigger from #validators then
             set #validators-table-container's @hx-disable to 'true' end">
@@ -29,7 +29,7 @@
                 </button>
                 {% endfor %}
                 <button class="hover:bg-purple-800 px-2 py-1 text-sm font-bold bg-purple-700 rounded-md"
-                    hx-get="/governance/htmx/validators/?block_number=0&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+                    hx-get="/htmx/validators/?block_number=0&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
                     hx-target="#validators" hx-trigger="click" hx-sync="this:replace" _="
             on htmx:afterRequest set #validators's @hx-trigger to 'load, every 30s'">
                     Now
@@ -60,7 +60,7 @@
                     ]
                 %}
                 <th id="validator-{{ key }}" class="whitespace-nowrap px-3 py-2"
-                    hx-get="/governance/htmx/validators/column/{{ key }}/?block_number={{ block_number }}"
+                    hx-get="/htmx/validators/column/{{ key }}/?block_number={{ block_number }}"
                     hx-trigger="every {{ swap_freq }}s" hx-swap="none" {{ hx_disable }}>
                     <div class="flex {% if key == 'cps' %}justify-center{% else %}justify-between{% endif %}">
                         <p>{{ name }}</p>
@@ -71,7 +71,7 @@
                         {% set reverse_sort_dir = "asc" %}
                         {% endif %}
                         <button
-                            hx-get="/governance/htmx/validators/?block_number={{ block_number }}&sort_by={{ key }}&sort_dir={{ reverse_sort_dir }}"
+                            hx-get="/htmx/validators/?block_number={{ block_number }}&sort_by={{ key }}&sort_dir={{ reverse_sort_dir }}"
                             hx-trigger="click" hx-target="#validators" hx-swap="innerHTML" hx-sync="this:replace">
                             <svg xmlns=" http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="w-5 h-5">
@@ -86,7 +86,7 @@
             </tr>
         </thead>
         <tbody class="divide-y-2 divide-gray-800"
-            hx-get="/governance/htmx/validators/rows/?block_number={{ block_number }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+            hx-get="/htmx/validators/rows/?block_number={{ block_number }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
             hx-trigger="every 60s" hx-swap="none" {{ hx_disable }}>
             {% include "governance/htmx/validators_rows.html" %}
         </tbody>

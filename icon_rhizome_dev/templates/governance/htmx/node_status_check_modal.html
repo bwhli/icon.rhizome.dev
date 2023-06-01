@@ -14,7 +14,7 @@
                 <p class="font-robotomono text-gray-300">Address: {{ address }}</p>
                 <p class="font-robotomono text-gray-300">Endpoint: http://{{ hostname }}:9000</p>
             </div>
-            <div hx-get="/governance/htmx/node-status-check-result/?hostname={{ hostname }}" hx-trigger="load">
+            <div hx-get="/htmx/node-status-check-result/?hostname={{ hostname }}" hx-trigger="load">
                 <p class="text-center">Fetching node status...</p>
             </div>
         </div>

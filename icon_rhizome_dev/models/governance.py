@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
 
-
 class Validator(BaseModel):
     address: str
     api_endpoint: str = None

@@ -1,12 +1,7 @@
-import asyncio
 import json
-
-from starlite import status_codes
-from starlite.exceptions import HTTPException
 
 from icon_rhizome_dev.constants import TRACKER_API_ENDPOINT
 from icon_rhizome_dev.http_client import HttpClient
-from icon_rhizome_dev.icx import Icx
 from icon_rhizome_dev.models.tracker import (
     TrackerAddress,
     TrackerContractDetails,
@@ -14,7 +9,6 @@ from icon_rhizome_dev.models.tracker import (
     TrackerTokenTransfer,
     TrackerTransaction,
 )
-from icon_rhizome_dev.redis_client import RedisClient
 
 
 class Tracker:
@@ -195,7 +189,7 @@ class Tracker:
 
     @classmethod
     async def get_api_endpoint(cls, address: str) -> str:
-        url = f"{TRACKER_API_ENDPOINT}/governance/preps/{address}"
+        url = f"{TRACKER_API_ENDPOINT}/preps/{address}"
         r = await HttpClient.get(url)
         data = r.json()
         validator = data[0]
@@ -264,7 +258,7 @@ class Tracker:
             return json.loads(cached_data)
 
         # Fetch data from Tracker API if there is no cached data.
-        url = f"{TRACKER_API_ENDPOINT}/governance/preps"
+        url = f"{TRACKER_API_ENDPOINT}/preps"
         r = await HttpClient.get(url)
         data = r.json()
         hostnames = {
@@ -281,9 +275,7 @@ class Tracker:
 
     @classmethod
     async def is_approved_voter(cls, address: str):
-        url = (
-            f"{TRACKER_API_ENDPOINT}/governance/delegations/{address}?skip=0&limit=100"
-        )
+        url = f"{TRACKER_API_ENDPOINT}/delegations/{address}?skip=0&limit=100"
         r = await HttpClient.get(url)
         if r.status_code == 200:
             delegations = r.json()

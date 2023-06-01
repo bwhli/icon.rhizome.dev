@@ -17,15 +17,7 @@ from starlite.plugins.piccolo_orm import PiccoloORMPlugin
 
 from icon_rhizome_dev import ENV
 from icon_rhizome_dev.constants import BLOCK_TIME, NOW, PROJECT_DIR, YEAR
-from icon_rhizome_dev.controllers.address import AddressController
-from icon_rhizome_dev.controllers.api.v1.quote import Api_QuoteController
-from icon_rhizome_dev.controllers.api.v1.tools import Api_ToolsController
-from icon_rhizome_dev.controllers.balanced import BalancedController
-from icon_rhizome_dev.controllers.cps import CpsController
 from icon_rhizome_dev.controllers.governance import GovernanceController
-from icon_rhizome_dev.controllers.tools import ToolsController
-from icon_rhizome_dev.controllers.transaction import TransactionController
-from icon_rhizome_dev.controllers.ws import WebSocketController
 from icon_rhizome_dev.utils import Utils
 
 # Configure Redis cache settings.
@@ -56,15 +48,6 @@ template_config.engine_instance.engine.globals["format_percentage"] = Utils.form
 template_config.engine_instance.engine.globals["get_validator_name_from_address"] = Utils.get_validator_name_from_address  # fmt: skip
 
 
-@get("/", cache=2)
-def home_handler(request: Request) -> Template:
-    response = Template(
-        name="index.html",
-        context={},
-    )
-    return response
-
-
 # Initialize Starlite app.
 app = Starlite(
     cache_config=cache_config,
@@ -74,16 +57,7 @@ app = Starlite(
     ),
     plugins=[PiccoloORMPlugin()],
     route_handlers=[
-        AddressController,
-        BalancedController,
-        CpsController,
         GovernanceController,
-        ToolsController,
-        TransactionController,
-        WebSocketController,
-        Api_QuoteController,
-        Api_ToolsController,
-        home_handler,
     ],
     static_files_config=[
         StaticFilesConfig(directories=[f"{PROJECT_DIR}/static"], path="/static"),

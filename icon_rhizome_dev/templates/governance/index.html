@@ -2,8 +2,8 @@
 
 {% block container %}
 <div id="container" class="xl:gap-4 flex flex-col w-full gap-2">
-    <div id="overview" hx-get="/governance/htmx/overview/?block_number={{ block_number }}" hx-trigger="load, every 60s">
+    <div id="overview" hx-get="/htmx/overview/?block_number={{ block_number }}" hx-trigger="load, every 60s">
     </div>
-    <div id="validators" hx-get="/governance/htmx/validators/?block_number={{ block_number }}" hx-trigger="load"></div>
+    <div id="validators" hx-get="/htmx/validators/?block_number={{ block_number }}" hx-trigger="load"></div>
 </div>
 {% endblock %}

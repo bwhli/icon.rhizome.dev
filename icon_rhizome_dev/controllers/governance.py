@@ -14,7 +14,7 @@ class GovernanceController(Controller):
     A controller for routes relating to ICON governance.
     """
 
-    path = "/governance"
+    path = "/"
 
     async def process_block_number(
         self,
