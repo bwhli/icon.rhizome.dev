@@ -1,7 +1,6 @@
 import os
 from datetime import date, datetime
 
-API_PREFIX = "/api/v1"
 BLOCK_TIME = 2
 EXA = 18
 NOW = datetime.utcnow()

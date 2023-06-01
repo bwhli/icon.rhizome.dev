@@ -9,19 +9,16 @@ packages = [{include = "icon_rhizome_dev"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 iconsdk = "^2.2.0"
-python-dotenv = "^0.21.0"
 jinja2-fragments = "^0.3.0"
 httpx = "^0.23.1"
 starlite = {extras = ["brotli", "redis"], version = "^1.49.0"}
 boto3 = "^1.26.49"
-pandas = "^1.5.2"
 gunicorn = "^20.1.0"
 rich = "^13.0.1"
 uvicorn = {extras = ["standard"], version = "^0.21.1"}
 yarl = "^1.8.2"
 django-htmlmin = "^0.11.0"
 starlette = "^0.23.1"
-piccolo = {extras = ["sqlite"], version = "^0.109.0"}
 uvloop = "^0.17.0"
 
 
